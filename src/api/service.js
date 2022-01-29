@@ -16,6 +16,8 @@ serviceHP.interceptors.request.use(
 serviceHP.interceptors.response.use(
   (response) => {
     console.log(response);
+    console.log(response.data);
+    return  response ;
   },
   (error) => {
     console.log(error);
