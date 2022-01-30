@@ -60,7 +60,7 @@ export function playListHot() {
  */
 export function keySearch(words) {
   return serviceHP({
-    url: NeteaseCloudMusicApi + "/search",
+    url: NeteaseCloudMusicApi + "/cloudsearch",
     method: "post",
     params: words
   });

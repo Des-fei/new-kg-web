@@ -4,10 +4,28 @@
       <button @click="getListHot">热门歌单分类</button>
     </div> -->
     <div id="search">
-      <input @input="handlerInput"  id="searchInput"  value="1" 
+      <div id="box">
+        <input @input="handlerInput"  v-model="keywords"  id="searchInput"  value=""  
              type="text" />
-      <button @click="handlerKeywords" >搜索</button>
-      <button @click="handlerMultimatch" >多重搜索</button>
+        <button @click="handlerKeywords" >搜索</button>
+        <div id="child">
+          <div class="left">
+            <a id="a1" href="#"><span class="one">1</span>awsd</a><br>
+            <a id="a3" href="#"><span class="three">3</span></a><br>
+            <a id="a5" href="#"><span class="five">5</span></a><br>
+            <a id="a7" href="#"><span class="seven">7</span></a><br>
+            <a id="a9" href="#"><span class="nine">9</span></a><br>
+          </div>
+          <div class="right">
+            <a id="a2" href="#"><span class="one">2</span></a><br>
+            <a id="a4" href="#"><span class="three">4</span></a><br>
+            <a id="a6" href="#"><span class="five">6</span></a><br>
+            <a id="a8" href="#"><span class="seven">8</span></a><br>
+            <a id="a10" href="#"><span class="nine">10</span></a><br>
+          </div>
+        </div>
+      </div>            
+      <!-- <button @click="handlerMultimatch" >多重搜索</button> -->
     </div>
   </div>
 </template>
@@ -16,12 +34,16 @@
 // import { playList , playListHot } from "@/api/neteaseCloudMusicApi";
 import { keySearch , keyDefault , hotList , hotListDetail , keySearchSuggest , searchMultimatch} from "@/api/neteaseCloudMusicApi";
 
+var showKeyword;
+var hotSong = new Array();
+var store;
+
 
 export default {
   data() { 
+    
     return {
-      keywords: "",
-      
+      keywords: "",      
     };
   },
 
@@ -31,20 +53,45 @@ export default {
     // });
 
     keyDefault().then((res) => {
-        let x=document.getElementById("searchInput");
-        x.value=res.data.data.showKeyword;
-        // x.value="123";
+        let searchInput = document.getElementById("searchInput");
+        showKeyword = res.data.data.showKeyword;
+        searchInput.value = showKeyword;
+        console.log(showKeyword)
     });
-    // 
 
-    // hotList().then((res) => {
-    //     console.log(res);
-    // });
+    var seInput = document.getElementById("searchInput");
+    seInput.onfocus = function(){
+      console.log("得到焦点");
+      if (seInput.value === showKeyword){
+        this.value = "";
+        seInput.style.color = "#000000";
+      }
+    }
 
-    // hotListDetail().then((res) => {
-    //     console.log(res);
-    // });
-    
+    seInput.onblur = function(){
+      console.log("失去焦点");
+      if (seInput.value === ""){
+        this.value = showKeyword;
+        seInput.style.color = "#999999";
+      }
+    }
+
+    hotList().then((res) => {
+        console.log("简略");
+        console.log(res);
+    });
+
+    hotListDetail().then((res) => {
+      for(var i = 0; i < 10; i++) {
+            var x = document.getElementById("a"+(i+1));
+            x.innerText = (i+1)+". "+res.data.data[i].searchWord; 
+            hotSong.push(res.data.data[i]);
+            console.log(x.value)
+      }	
+      // console.log(store)
+      console.log(hotSong);	
+      console.log(res);
+    });   
   },
 
   methods: {
@@ -55,39 +102,72 @@ export default {
     // },
 
     handlerKeywords(){
+      if(this.keywords === ""){
+        this.keywords = showKeyword;
+      }
       let words = {
         keywords: this.keywords,
       };
+      console.log(words);
       keySearch(words).then((res) => {
         console.log(res);
        });
     },
 
-    handlerMultimatch(){
-      let words = {
-        keywords: this.keywords,
-      };
-      searchMultimatch(words).then((res) => {
-        console.log(res);
-       });
-    },
+    // handlerMultimatch(){
+    //   let words = {
+    //     keywords: this.keywords,
+    //   };
+    //   searchMultimatch(words).then((res) => {
+    //     console.log(res);
+    //    });
+    // },
 
-    handlerInput(){
-      let words = {
-        keywords: this.keywords,
-      };
-      keySearchSuggest(words).then((res) => {
-        console.log(res);
-       });
-    }
+    // handlerInput(){
+    //   let words = {
+    //     keywords: this.keywords,
+    //   };
+    //   keySearchSuggest(words).then((res) => {
+    //     console.log(res);
+    //    });
+    // }
   },
 }
+
+
 
 </script>
 
 <style lang="scss" scoped>
+
+#search{
+  text-align:center;
+}
+
 #searchInput{
   color: gray;
 }
 
+#box{
+  position: relative;
+  display:inline-block;
+  width: 500px;
+  height: auto;
+}
+
+#child{
+  position: absolute;
+  left: -10px;
+  width: 500px;
+  height: auto;
+}
+
+#child .left{
+  float: left;
+}
+
+#child .right{
+  position: absolute;
+  left: 250px;
+}
 </style>
