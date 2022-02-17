@@ -34,6 +34,11 @@ const routes = [
     path: "/ljz",
     name: "LJZ",
     component: () => import("@/views/LJZ/index.vue")
+  },
+  {
+    path: "/echarts/chart1",
+    name: "Chart1",
+    component: () => import("@/views/echarts/chart1.vue")
   }
 ];
 

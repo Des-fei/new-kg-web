@@ -5,6 +5,7 @@
       <router-link to="/plugins">Plugins</router-link> |
       <router-link to="/cloud-music">cloud-music</router-link> |
       <router-link to="/antvx6">AntvX6</router-link> |
+      <router-link to="/echarts/chart1">Echarts-Chart1</router-link> |
       <router-link to="/zyf">ZYF</router-link> |
       <router-link to="/ljz">LJZ</router-link>
     </div>
@@ -22,7 +23,7 @@ export default {
   created() {},
   mounted() {},
   destroyed() {},
-  computed() {},
+  computed: {},
   methods: {},
   watch: {},
   filters: {},

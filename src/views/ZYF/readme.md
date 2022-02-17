@@ -16,7 +16,7 @@
   created() {},
   mounted() {},
   destroyed() {},
-  computed() {},
+  computed: {},
   methods: {},
   watch: {},
   filters: {},
