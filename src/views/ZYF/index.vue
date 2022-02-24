@@ -24,14 +24,17 @@
             <a id="a10" href="#"><span class="nine">10</span></a><br>
           </div>
         </div>
-      </div>            
+      </div>
+              
       <!-- <button @click="handlerMultimatch" >多重搜索</button> -->
     </div>
+    <div id="mountNode"></div>
   </div>
 </template>
 
 <script>
 // import { playList , playListHot } from "@/api/neteaseCloudMusicApi";
+import G6 from "@antv/g6";
 import { keySearch , keyDefault , hotList , hotListDetail , keySearchSuggest , searchMultimatch} from "@/api/neteaseCloudMusicApi";
 
 var showKeyword;
@@ -42,8 +45,93 @@ var store;
 export default {
   data() { 
     
+    
     return {
-      keywords: "",      
+      keywords: "",   
+      chartData: {
+        nodes: [
+        {
+            id: 'node1', 
+            x: 100, 
+            y: 100, 
+            label: '服务器1', 
+            size: 50, 
+            type: 'circle', 
+            anchorPoints: [],	
+            style: {    
+                fill: '#00FFFF', 
+                stroke: '#FFFF00',  
+                lineWidth: 5,
+            }, 
+            labelCfg: {
+                position: 'bottom', 
+                offset: 10, 
+                style: {   
+                  fill: 'red', 
+                },
+              },
+        },
+        {
+            id: 'node2', 
+            x: 300, 
+            y: 100, 
+            label: '服务器2', 
+            size: 50, 
+            type: 'circle', 
+            anchorPoints: [],	
+            style: {    
+                fill: '#00FFFF', 
+                stroke: '#FFFF00',  
+                lineWidth: 5,
+            }, 
+            labelCfg: {
+                position: 'bottom', 
+                offset: 10, 
+                style: {   
+                  fill: 'red', 
+                },
+              },
+        },
+        {
+          id: 'node3', 
+            x: 500, 
+            y: 100, 
+            label: '服务器3', 
+            size: 50, 
+            type: 'circle', 
+            anchorPoints: [],	
+            style: {    
+                fill: '#00FFFF', 
+                stroke: '#FFFF00',  
+                lineWidth: 5,
+            }, 
+            labelCfg: {
+                position: 'bottom', 
+                offset: 10, 
+                style: {   
+                  fill: 'red', 
+                },
+              },
+              },
+    ],
+        edges: [
+        {
+            source: 'node1', 
+            target: 'node2', 
+            style: {
+                stroke: '#7CD13B',
+              },
+        },
+        {
+            source: 'node2', 
+            target: 'node3', 
+            style: {
+                stroke: '#FF0000',
+              },
+        },        
+    ],
+},
+   
     };
   },
 
@@ -51,6 +139,65 @@ export default {
     // playList().then((res) => {
     //     console.log(res);
     // });
+
+  const graph = new G6.Graph({
+    container: 'mountNode', 
+    width: 800,
+    height: 500,
+    defaultEdge: {
+          type: 'circle-running', 
+          style: { 
+            lineWidth: 2,
+            stroke: '#bae7ff',
+          },
+    }
+  });
+
+      let edgeCircleColorIndex = 0;
+      let edgeCircleColorArr = ["#7CD13B", "#FF0000"];
+ 
+      G6.registerEdge(
+        'circle-running',
+        {
+          afterDraw(cfg, group) {
+            const shape = group.get('children')[0];
+            const startPoint = shape.getPoint(0);
+            //创建节点之间的圆圈，并为每一个设置样式
+            const circle = group.addShape('circle', {
+              attrs: {
+                x: startPoint.x,
+                y: startPoint.y,
+                fill: edgeCircleColorArr[edgeCircleColorIndex++],
+                r: 6, //圆圈大小
+              },
+              name: 'circle-shape',
+            });
+ 
+ 
+            // 实现动态效果
+            circle.animate(
+              ratio => {
+                const tmpPoint = shape.getPoint(ratio);
+                return {
+                  x: tmpPoint.x,
+                  y: tmpPoint.y,
+ 
+                };
+              },
+              {
+                repeat: true, //动画是否重复
+                duration: 3000, //一次动画持续时长
+              },
+            );
+          },
+        },
+        'cubic',
+      );
+
+  graph.data(this.chartData);
+  graph.render();
+
+
 
     keyDefault().then((res) => {
         let searchInput = document.getElementById("searchInput");
@@ -136,6 +283,7 @@ export default {
 
 
 
+
 </script>
 
 <style lang="scss" scoped>
@@ -169,5 +317,9 @@ export default {
 #child .right{
   position: absolute;
   left: 250px;
+}
+
+#mountNode{
+  margin-top: 100px;
 }
 </style>
