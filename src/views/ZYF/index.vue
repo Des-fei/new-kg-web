@@ -28,6 +28,9 @@
               
       <!-- <button @click="handlerMultimatch" >多重搜索</button> -->
     </div>
+    <div id="testStore">
+      <button @click="addClick()">加</button>
+    </div>
     <div id="mountNode"></div>
   </div>
 </template>
@@ -35,11 +38,12 @@
 <script>
 // import { playList , playListHot } from "@/api/neteaseCloudMusicApi";
 import G6 from "@antv/g6";
+import store from "./store";
 import { keySearch , keyDefault , hotList , hotListDetail , keySearchSuggest , searchMultimatch} from "@/api/neteaseCloudMusicApi";
 
 var showKeyword;
 var hotSong = new Array();
-var store;
+
 
 
 export default {
@@ -198,6 +202,25 @@ export default {
   graph.render();
 
 
+        let arr = ["小明", "小花", "小鱼", "小猪"];
+        let [,,one] = arr; 
+        console.log(one);
+
+        // 解构整个数组
+        let strArr = [...arr];
+        // 得到整个数组
+        console.log(strArr);
+
+        let obj = {
+          className : "卡西诺",
+          age: 18
+        }
+        let {className} = obj; // 得到卡西诺
+        console.log(className);
+        let {age} = obj;	// 得到18
+        console.log(age);
+
+
 
     keyDefault().then((res) => {
         let searchInput = document.getElementById("searchInput");
@@ -235,7 +258,7 @@ export default {
             hotSong.push(res.data.data[i]);
             console.log(x.value)
       }	
-      // console.log(store)
+      // console.log(story)
       console.log(hotSong);	
       console.log(res);
     });   
@@ -247,6 +270,16 @@ export default {
     //     console.log(res);
     //   });
     // },
+
+    // click(){
+    //     this.$store.commit('saveCurrDbSource',this.db)
+    // },
+
+    addClick(){
+      store.commit('increment')
+      console.log(store.state.count) // -> 1
+    },
+
 
     handlerKeywords(){
       if(this.keywords === ""){
@@ -320,6 +353,10 @@ export default {
 }
 
 #mountNode{
-  margin-top: 100px;
+  margin-top: 50px;
+}
+
+#testStore{
+  margin-top:150px;
 }
 </style>
