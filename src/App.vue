@@ -5,9 +5,9 @@
       <router-link to="/plugins">Plugins</router-link> |
       <router-link to="/cloud-music">cloud-music</router-link> |
       <router-link to="/antvx6">AntvX6</router-link> |
+      <router-link to="/antvx6demo">AntvX6demo</router-link> |
       <router-link to="/echarts/chart1">Echarts-Chart1</router-link> |
-      <router-link to="/zyf">ZYF</router-link> |
-      <router-link to="/ljz">LJZ</router-link>
+      <router-link to="/antvg6">AntvG6</router-link> |
     </div>
     <router-view />
   </div>
