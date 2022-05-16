@@ -2,6 +2,9 @@
   <div class="antv-x6">
     <div id="stencil" class="stencil"></div>
     <div id="container" class="container"></div>
+    <div id="save" class="save">
+      <button @click="handlerSave()">保存布局</button>
+    </div>
     <el-dialog
       title="组件信息"
       :visible.sync="dialogVisible"
@@ -10,19 +13,19 @@
       <div>
         <span
           >组件名称：
-          <input type="text" />
+          <input type="text" v-model="componentName" />
         </span>
       </div>
       <div>
         <span
           >组件ID：
-          <input type="text" />
+          <input type="text" v-model="componentId" />
         </span>
       </div>
 
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="dialogVisible = false"
+        <el-button type="primary" @click="changeCurrentNodeData()"
           >确 定</el-button
         >
       </span>
@@ -73,8 +76,13 @@ export default {
       graph: null,
       stencil: null,
       menu: null,
+
       dialogVisible: false,
+
       currentNode: null,
+      selectedNode: null,
+      componentName: null,
+      componentId: null,
     };
   },
   mounted() {
@@ -316,11 +324,19 @@ export default {
         console.log(node);
         this.getCurrentNodeData(node);
         this.dialogVisible = true;
+        if (this.componentName) {
+          this.componentName = "";
+        }
+        if (this.componentId) {
+          this.componentId = "";
+        }
       });
     },
 
     //获取组件基本信息
     getCurrentNodeData(node) {
+      this.selectedNode = node;
+      // console.log(this.selectedNode);
       let currentNode = {
         currentId: node.id,
         currentLabel: node.label,
@@ -329,6 +345,24 @@ export default {
       };
       console.log(currentNode);
       this.currentNode = currentNode;
+    },
+
+    //更改组件信息
+    changeCurrentNodeData() {
+      this.dialogVisible = false;
+      // console.log(this.componentName);
+      // console.log(this.componentId);
+      this.selectedNode.label = this.componentName;
+      this.selectedNode.id = this.componentId;
+      console.log(this.selectedNode.label);
+      console.log(this.selectedNode.id);
+    },
+
+    //导出布局
+    handlerSave() {
+      let graph = this.graph;
+      console.log(graph);
+      console.log(graph.toJSON());
     },
   },
 };
