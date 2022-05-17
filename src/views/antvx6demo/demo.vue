@@ -1,43 +1,101 @@
 <template>
   <div class="antv-x6">
-    <div id="stencil" class="stencil"></div>
-    <div id="container" class="container"></div>
-    <div id="save" class="save">
-      <button @click="handlerSave()">保存布局</button>
+    <div class="content">
+      <div id="container" class="container"></div>
+      <div class="right">
+        <div class="header">
+          <span
+            class="title"
+            @click="showBox(1)"
+            :style="{
+              background: flag === true ? '#fff' : 'rgb(183, 180, 180)',
+            }"
+            >组件库</span
+          ><span
+            class="title"
+            @click="showBox(0)"
+            :style="{
+              background: flag === false ? '#fff' : 'rgb(183, 180, 180)',
+            }"
+            >组件编辑</span
+          >
+        </div>
+        <div id="stencil" class="stencil" v-show="flag === true"></div>
+        <div class="editBox" v-show="flag === false">
+          <div class="options">
+            <div class="option">
+              <span
+                >组件名称:
+                <input type="text" v-model="componentName" />
+                <el-button>撤 销</el-button>
+                <el-button @click="changeName()">更 改</el-button>
+              </span>
+            </div>
+            <div class="option">
+              <span
+                >组件ID:
+                <input type="text" v-model="componentId" />
+                <el-button>撤 销</el-button>
+                <el-button @click="changeId()">更 改</el-button>
+              </span>
+            </div>
+            <div class="option">
+              <span
+                >位置X:
+                <input type="text" v-model="componentPositionX" />
+                <el-button>撤 销</el-button>
+                <el-button @click="changePosition()">更 改</el-button>
+              </span>
+            </div>
+            <div class="option">
+              <span
+                >位置Y:
+                <input type="text" v-model="componentPositionY" />
+                <el-button>撤 销</el-button>
+                <el-button @click="changePosition()">更 改</el-button>
+              </span>
+            </div>
+            <div class="option">
+              <span
+                >宽度: <input type="text" v-model="componentWidth" /><el-button
+                  >撤 销</el-button
+                >
+                <el-button @click="changeSize()">更 改</el-button>
+              </span>
+            </div>
+            <div class="option">
+              <span
+                >高度: <input type="text" v-model="componentHeight" /><el-button
+                  >撤 销</el-button
+                >
+                <el-button @click="changeSize()">更 改</el-button>
+              </span>
+            </div>
+            <!-- <div class="option" v-for="(item, index) in options" :key="index">
+              <span
+                >{{ item.name }}:
+                <input type="text" v-model="options[index].data" />
+              </span>
+            </div> -->
+          </div>
+          <div class="button">
+            <el-button>取 消</el-button>
+            <el-button @click="changeCurrentNodeData()">确 定</el-button>
+          </div>
+        </div>
+      </div>
     </div>
-    <el-dialog
-      title="组件信息"
-      :visible.sync="dialogVisible"
-      :show-close="true"
-    >
-      <div>
-        <span
-          >组件名称：
-          <input type="text" v-model="componentName" />
-        </span>
+    <div class="bottom">
+      <div id="save" class="save">
+        <button @click="handlerSave()">保存布局</button>
       </div>
-      <div>
-        <span
-          >组件ID：
-          <input type="text" v-model="componentId" />
-        </span>
-      </div>
-
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="changeCurrentNodeData()"
-          >确 定</el-button
-        >
-      </span>
-    </el-dialog>
+    </div>
   </div>
 </template>
 
 <script>
 import { Graph, Addon, ToolsView, NodeView } from "@antv/x6";
 import { Menu, Dropdown } from "antd";
-import React from "react";
-import ReactDom from "react-dom";
 
 export default {
   name: "AntvX6",
@@ -77,12 +135,50 @@ export default {
       stencil: null,
       menu: null,
 
-      dialogVisible: false,
+      flag: true,
+      options: [
+        {
+          id: "1",
+          name: "组件名称",
+          data: "",
+        },
+        {
+          id: "2",
+          name: "组件ID",
+          value: "1",
+        },
+        {
+          id: "3",
+          name: "位置X",
+          value: "1",
+        },
+        {
+          id: "4",
+          name: "位置Y",
+          value: "1",
+        },
+        {
+          id: "5",
+          name: "宽度",
+          value: "1",
+        },
+        {
+          id: "6",
+          name: "高度",
+          value: "1",
+        },
+      ],
 
       currentNode: null,
       selectedNode: null,
+
+      //初始化组件数据
       componentName: null,
       componentId: null,
+      componentPositionX: null,
+      componentPositionY: null,
+      componentWidth: null,
+      componentHeight: null,
     };
   },
   mounted() {
@@ -93,7 +189,7 @@ export default {
       //初始化画布
       const graph = new Graph({
         container: document.getElementById("container"),
-        width: 1920,
+        width: 2420,
         height: 1080,
         background: {
           color: "#fffbe6", // 设置画布背景颜色
@@ -127,6 +223,32 @@ export default {
       // graph.zoom(-0.5);
       // graph.translate(80, 40);
 
+      //创建menu
+
+      // class ContextMenuTool extends ToolsView.ToolItem< ContextMenuToolOptions >{
+      // }
+
+      // Graph.registerNodeTool("contextmenu", ContextMenuTool, true);
+
+      // const menu = (
+      //   <Menu>
+      //     <Menu.Item>1st menu item</Menu.Item>
+      //     <Menu.Item>2nd menu item</Menu.Item>
+      //     <Menu.Item>3rd menu item</Menu.Item>
+      //     <Menu.Item danger>a danger item</Menu.Item>
+      //   </Menu>
+      // );
+
+      this.graph = graph;
+      this.initStencil();
+      // this.stencil = stencil;
+      // this.menu = menu;
+      this.getData();
+    },
+
+    //初始化stencil
+    initStencil() {
+      let graph = this.graph;
       const stencil = new Addon.Stencil({
         title: "组件库",
         target: graph, //目标画布
@@ -237,32 +359,11 @@ export default {
       stencil.load([r1, r2], "group1");
       stencil.load([r3, r4], "group2");
 
-      //创建menu
-
-      // class ContextMenuTool extends ToolsView.ToolItem< ContextMenuToolOptions >{
-      // }
-
-      // Graph.registerNodeTool("contextmenu", ContextMenuTool, true);
-
-      // const menu = (
-      //   <Menu>
-      //     <Menu.Item>1st menu item</Menu.Item>
-      //     <Menu.Item>2nd menu item</Menu.Item>
-      //     <Menu.Item>3rd menu item</Menu.Item>
-      //     <Menu.Item danger>a danger item</Menu.Item>
-      //   </Menu>
-      // );
-
-      this.graph = graph;
       this.stencil = stencil;
-      // this.menu = menu;
-      this.getData();
     },
 
     getData() {
       let graph = this.graph;
-      let stencil = this.stencil;
-      let menu = this.menu;
 
       //复制、粘贴和剪切
       graph.bindKey(["meta+c", "ctrl+c"], () => {
@@ -323,39 +424,59 @@ export default {
       graph.on("node:dblclick", ({ node }) => {
         console.log(node);
         this.getCurrentNodeData(node);
-        this.dialogVisible = true;
-        if (this.componentName) {
-          this.componentName = "";
-        }
-        if (this.componentId) {
-          this.componentId = "";
-        }
+        this.flag = false;
       });
     },
 
     //获取组件基本信息
     getCurrentNodeData(node) {
       this.selectedNode = node;
-      // console.log(this.selectedNode);
+      console.log(this.selectedNode);
       let currentNode = {
-        currentId: node.id,
         currentLabel: node.label,
-        currentPosition: node.store.data.position,
-        currentSize: node.store.data.size,
+        currentId: node.id,
+        currentPositionX: node.store.data.position.x,
+        currentPositionY: node.store.data.position.y,
+        currentSizeWidth: node.store.data.size.width,
+        currentSizeHeight: node.store.data.size.height,
       };
       console.log(currentNode);
       this.currentNode = currentNode;
+
+      this.componentName = currentNode.currentLabel;
+      this.componentId = currentNode.currentId;
+      this.componentPositionX = currentNode.currentPositionX;
+      this.componentPositionY = currentNode.currentPositionY;
+      this.componentWidth = currentNode.currentSizeWidth;
+      this.componentHeight = currentNode.currentSizeHeight;
     },
 
     //更改组件信息
-    changeCurrentNodeData() {
-      this.dialogVisible = false;
-      // console.log(this.componentName);
-      // console.log(this.componentId);
+    changeName() {
       this.selectedNode.label = this.componentName;
-      this.selectedNode.id = this.componentId;
-      console.log(this.selectedNode.label);
-      console.log(this.selectedNode.id);
+      console.log(this.selectedNode);
+    },
+
+    changeId() {
+      let graph = this.graph;
+      graph.updateCellId(this.selectedNode, this.componentId);
+    },
+
+    changePosition() {
+      let componentPositionX = this.componentPositionX - 0;
+      let componentPositionY = this.componentPositionY - 0;
+      this.selectedNode.position(componentPositionX, componentPositionY);
+    },
+
+    changeSize() {
+      this.selectedNode.resize(this.componentWidth, this.componentHeight);
+    },
+
+    changeCurrentNodeData() {
+      this.changeName();
+      this.changeId();
+      this.changePosition();
+      this.changeSize();
     },
 
     //导出布局
@@ -364,41 +485,71 @@ export default {
       console.log(graph);
       console.log(graph.toJSON());
     },
+
+    //切换右栏
+    showBox(index) {
+      if (index === 1) {
+        this.flag = true;
+        this.initStencil();
+      } else if (index === 0) {
+        this.flag = false;
+        this.stencil.unmount();
+      }
+    },
   },
 };
 </script>
 
 <style lang="scss" scoped>
 .antv-x6 {
-  display: flex;
-  .stencil {
-    width: 500px;
-    height: 1080px;
-    position: relative;
-  }
-  ::v-deep .el-dialog {
+  .content {
     display: flex;
-    flex-direction: column;
-    margin-top: 200px;
-    margin-left: 500px;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-100px, -100px);
-    height: 500px;
-    width: 500px;
-    background-color: #d3d9ddee;
-    border: 1px solid rgb(13, 210, 236);
-    .el-dialog__title {
-      height: 50px;
-      line-height: 50px;
-      color: white;
-      caret-color: transparent;
-    }
-    .el-dialog__body {
-      font-size: 18px;
-      height: 400px;
-      padding: 10px 10px;
+    .right {
+      width: 500px;
+      .header {
+        background: rgb(183, 180, 180);
+        display: flex;
+        border: 1px solid #555;
+        border-bottom: 0px;
+        justify-content: space-between;
+        .title {
+          width: 250px;
+          height: 50px;
+          line-height: 50px;
+          text-align: center;
+          cursor: pointer;
+          &:hover {
+            background: rgb(238, 238, 238);
+          }
+        }
+      }
+      .stencil {
+        width: 500px;
+        height: 1030px;
+        position: relative;
+      }
+      .editBox {
+        .options {
+          height: 400px;
+          margin: 20px;
+          .option {
+            margin-bottom: 20px;
+            button {
+              margin-left: 10px;
+            }
+          }
+        }
+        .button {
+          display: flex;
+          justify-content: space-between;
+          width: 300px;
+          margin-left: 100px;
+          button {
+            width: 100px;
+            cursor: pointer;
+          }
+        }
+      }
     }
   }
 }
