@@ -27,8 +27,8 @@
               <span
                 >组件名称:
                 <input type="text" v-model="componentName" />
-                <el-button>撤 销</el-button>
-                <el-button @click="changeName()">更 改</el-button>
+                <el-button @click="changeName(0)">撤 销</el-button>
+                <el-button @click="changeName(1)">更 改</el-button>
               </span>
             </div>
             <div class="option">
@@ -79,7 +79,7 @@
             </div> -->
           </div>
           <div class="button">
-            <el-button>取 消</el-button>
+            <el-button @click="recoverCurrentNodeData()">取 消</el-button>
             <el-button @click="changeCurrentNodeData()">确 定</el-button>
           </div>
         </div>
@@ -189,8 +189,9 @@ export default {
       //初始化画布
       const graph = new Graph({
         container: document.getElementById("container"),
-        width: 2420,
+        width: 1920,
         height: 1080,
+        // autoResize: true,
         background: {
           color: "#fffbe6", // 设置画布背景颜色
         },
@@ -452,14 +453,22 @@ export default {
     },
 
     //更改组件信息
-    changeName() {
-      this.selectedNode.label = this.componentName;
-      console.log(this.selectedNode);
+    changeName(index) {
+      let temp;
+      if (index === 1) {
+        temp = this.componentName;
+      }
+      if (index === 0) {
+        temp = this.currentNode.currentLabel;
+        this.componentName = this.currentNode.currentLabel;
+      }
+      this.selectedNode.label = temp;
     },
 
     changeId() {
       let graph = this.graph;
       graph.updateCellId(this.selectedNode, this.componentId);
+      this.selectedNode = graph.getCellById(this.componentId);
     },
 
     changePosition() {
@@ -473,11 +482,28 @@ export default {
     },
 
     changeCurrentNodeData() {
-      this.changeName();
-      this.changeId();
-      this.changePosition();
-      this.changeSize();
+      if (this.componentName !== this.currentNode.currentLabel) {
+        this.changeName(1);
+      }
+      if (this.componentId !== this.currentNode.currentId) {
+        this.changeId();
+      }
+      if (
+        this.componentPositionX !== this.currentNode.currentPositionX ||
+        this.componentPositionY !== this.currentNode.currentPositionY
+      ) {
+        this.changePosition();
+      }
+      if (
+        this.componentWidth !== this.currentNode.currentSizeWidth ||
+        this.componentHeight !== this.currentNode.currentSizeHeight
+      ) {
+        this.changeSize();
+      }
     },
+
+    //恢复组件信息
+    recoverCurrentNodeData() {},
 
     //导出布局
     handlerSave() {
@@ -502,8 +528,11 @@ export default {
 
 <style lang="scss" scoped>
 .antv-x6 {
+  display: flex;
+  min-height: 1080px;
   .content {
     display: flex;
+    min-height: 1080px;
     .right {
       width: 500px;
       .header {
