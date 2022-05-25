@@ -195,18 +195,43 @@ export default {
         background: {
           color: "#fffbe6", // 设置画布背景颜色
         },
-        // scroller: true, //滚动画布
+        scroller: {
+          enabled: true,
+          width: 1100, //滚轮显示大小
+          pageVisible: false, // 是否分页，默认为 false。
+          pageBreak: false, // 是否显示分页符，默认为 false。
+          pannable: true, // 启用画布平移
+          minVisibleWidth: 1920,
+          minVisibleHeight: 1080,
+          autoResize: {
+            mixWidth: 1920,
+            maxWidth: 1920,
+            minHeight: 1080,
+          },
+          background: {
+            color: "grey",
+            position: {
+              x: 0,
+              y: 0,
+            },
+            size: {
+              width: 1980,
+              height: 1080,
+            },
+          },
+        },
+        //滚动画布
         // history: true, //撤消重做
         clipboard: true, //剪切板
         keyboard: true, //键盘快捷键
         snapline: true, //对齐线
-        // mousewheel: {
-        //   enabled: true,
-        //   zoomAtMousePosition: true, //是否将鼠标位置作为中心缩放
-        //   modifiers: "ctrl", //设置修饰键
-        //   minScale: 0.5,
-        //   maxScale: 3,
-        // }, //鼠标滚轮缩放
+        mousewheel: {
+          enabled: true,
+          zoomAtMousePosition: true, //是否将鼠标位置作为中心缩放
+          modifiers: "ctrl", //设置修饰键
+          minScale: 0.5,
+          maxScale: 3,
+        }, //鼠标滚轮缩放
         selecting: {
           enabled: true, //启用点选
           rubberband: true, // 启用框选
@@ -529,10 +554,8 @@ export default {
 <style lang="scss" scoped>
 .antv-x6 {
   display: flex;
-  min-height: 1080px;
   .content {
     display: flex;
-    min-height: 1080px;
     .right {
       width: 500px;
       .header {
