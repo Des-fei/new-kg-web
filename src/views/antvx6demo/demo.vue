@@ -27,7 +27,7 @@
               <span
                 >组件名称:
                 <input type="text" v-model="componentName" />
-                <el-button @click="changeName(0)">撤 销</el-button>
+                <!-- <el-button @click="changeName(0)">撤 销</el-button> -->
                 <el-button @click="changeName(1)">更 改</el-button>
               </span>
             </div>
@@ -35,7 +35,7 @@
               <span
                 >组件ID:
                 <input type="text" v-model="componentId" />
-                <el-button>撤 销</el-button>
+                <!-- <el-button>撤 销</el-button> -->
                 <el-button @click="changeId()">更 改</el-button>
               </span>
             </div>
@@ -43,7 +43,7 @@
               <span
                 >位置X:
                 <input type="text" v-model="componentPositionX" />
-                <el-button>撤 销</el-button>
+                <!-- <el-button>撤 销</el-button> -->
                 <el-button @click="changePosition()">更 改</el-button>
               </span>
             </div>
@@ -51,24 +51,55 @@
               <span
                 >位置Y:
                 <input type="text" v-model="componentPositionY" />
-                <el-button>撤 销</el-button>
+                <!-- <el-button>撤 销</el-button> -->
                 <el-button @click="changePosition()">更 改</el-button>
               </span>
             </div>
             <div class="option">
               <span
-                >宽度: <input type="text" v-model="componentWidth" /><el-button
-                  >撤 销</el-button
-                >
+                >宽度: <input type="text" v-model="componentWidth" />
+                <!-- <el-button>撤 销</el-button> -->
                 <el-button @click="changeSize()">更 改</el-button>
               </span>
             </div>
             <div class="option">
               <span
-                >高度: <input type="text" v-model="componentHeight" /><el-button
-                  >撤 销</el-button
-                >
+                >高度: <input type="text" v-model="componentHeight" />
+                <!-- <el-button>撤 销</el-button> -->
                 <el-button @click="changeSize()">更 改</el-button>
+              </span>
+            </div>
+            <div class="option">
+              <span
+                >层级: <input type="text" v-model="componentIndex" />
+                <!-- <el-button>撤 销</el-button> -->
+                <el-button @click="changeIndex()">更 改</el-button>
+                <el-button @click="changeIndex(0)">置于底层</el-button>
+                <el-button @click="changeIndex(1)">置于顶层</el-button>
+              </span>
+            </div>
+            <div class="option">
+              <span
+                >parent-ID:
+                <input type="text" v-model="componentParentId" />
+                <!-- <el-button>撤 销</el-button> -->
+                <el-button @click="changeData()">保 存</el-button>
+              </span>
+            </div>
+            <div class="option">
+              <span
+                >parent-位置X:
+                <input type="text" v-model="componentParentX" />
+                <!-- <el-button>撤 销</el-button> -->
+                <!-- <el-button @click="changePosition()">更 改</el-button> -->
+              </span>
+            </div>
+            <div class="option">
+              <span
+                >parent-位置Y:
+                <input type="text" v-model="componentParentY" />
+                <!-- <el-button>撤 销</el-button> -->
+                <!-- <el-button @click="changePosition()">更 改</el-button> -->
               </span>
             </div>
             <!-- <div class="option" v-for="(item, index) in options" :key="index">
@@ -105,25 +136,24 @@ export default {
         nodes: [
           {
             id: "node1", // String，可选，节点的唯一标识
-            x: 40, // Number，必选，节点位置的 x 值
-            y: 40, // Number，必选，节点位置的 y 值
-            width: 80, // Number，可选，节点大小的 width 值
-            height: 40, // Number，可选，节点大小的 height 值
-            label: "hello", // String，节点标签
+            x: 200, // Number，必选，节点位置的 x 值
+            y: 80, // Number，必选，节点位置的 y 值
+            width: 240, // Number，可选，节点大小的 width 值
+            height: 160, // Number，可选，节点大小的 height 值
+            label: "parent", // String，节点标签
+            zIndex: 1,
+            data: {
+              parent: true,
+            },
           },
           {
             id: "node2", // String，节点的唯一标识
-            x: 160, // Number，必选，节点位置的 x 值
-            y: 180, // Number，必选，节点位置的 y 值
-            width: 80, // Number，可选，节点大小的 width 值
-            height: 40, // Number，可选，节点大小的 height 值
-            label: "world", // String，节点标签
-          },
-        ],
-        edges: [
-          {
-            source: "node1", // String，必须，起始节点 id
-            target: "node2", // String，必须，目标节点 id
+            x: 40, // Number，必选，节点位置的 x 值
+            y: 140, // Number，必选，节点位置的 y 值
+            width: 100, // Number，可选，节点大小的 width 值
+            height: 50, // Number，可选，节点大小的 height 值
+            label: "child", // String，节点标签
+            zIndex: 10,
           },
         ],
       },
@@ -179,6 +209,12 @@ export default {
       componentPositionY: null,
       componentWidth: null,
       componentHeight: null,
+      componentIndex: null,
+      componentParentId: null,
+      componentParentX: null,
+      componentParentY: null,
+
+      childToParentPosition: null,
     };
   },
   mounted() {
@@ -198,8 +234,8 @@ export default {
         scroller: {
           enabled: true,
           width: 1100, //滚轮显示大小
-          pageVisible: false, // 是否分页，默认为 false。
-          pageBreak: false, // 是否显示分页符，默认为 false。
+          pageVisible: true, // 是否分页，默认为 false。
+          pageBreak: true, // 是否显示分页符，默认为 false。
           pannable: true, // 启用画布平移
           minVisibleWidth: 1920,
           minVisibleHeight: 1080,
@@ -229,7 +265,7 @@ export default {
           enabled: true,
           zoomAtMousePosition: true, //是否将鼠标位置作为中心缩放
           modifiers: "ctrl", //设置修饰键
-          minScale: 0.5,
+          minScale: 1,
           maxScale: 3,
         }, //鼠标滚轮缩放
         selecting: {
@@ -243,6 +279,20 @@ export default {
         grid: {
           size: 10, // 网格大小 10px
           visible: true, // 渲染网格背景
+        },
+        embedding: {
+          enabled: true, //允许节点之间嵌套
+          findParent({ node }) {
+            const bbox = node.getBBox();
+            return this.getNodes().filter((node) => {
+              const data = node.getData();
+              if (data && data.parent) {
+                const targetBBox = node.getBBox();
+                return bbox.isIntersectWithRect(targetBBox);
+              }
+              return false;
+            });
+          },
         },
       });
       graph.fromJSON(this.chartData1);
@@ -283,9 +333,9 @@ export default {
         stencilGraphWidth: 200, //模板画布宽度
         stencilGraphHeight: 180, //模板画布高度
         // graphPadding: 50, // 模板画布边距
-        search: true, //搜索选项
-        placeholder: "Search", //搜索文本框的 placeholder 文本
-        notFoundText: "No matches found", //未匹配到搜索结果时的提示文本
+        // search: true, //搜索选项
+        // placeholder: "Search", //搜索文本框的 placeholder 文本
+        // notFoundText: "No matches found", //未匹配到搜索结果时的提示文本
         groups: [
           {
             title: "A类组件",
@@ -294,6 +344,14 @@ export default {
           {
             title: "B类组件",
             name: "group2",
+            graphHeight: 250,
+            layoutOptions: {
+              rowHeight: 70,
+            },
+          },
+          {
+            title: "C类容器",
+            name: "group3",
             graphHeight: 250,
             layoutOptions: {
               rowHeight: 70,
@@ -310,6 +368,12 @@ export default {
           // marginY:0,//单元格在 Y 轴的边距
           center: true, //节点是否与网格居中对齐
           resizeToFit: false, //是否自动调整节点的大小来适应网格大小
+        },
+        validateNode(getDragNode) {
+          console.log(getDragNode);
+          if (getDragNode.position.x < 0 || getDragNode.position.x > 1920) {
+            return false;
+          }
         },
       });
       //挂载到页面
@@ -362,6 +426,32 @@ export default {
         },
         true
       );
+      Graph.registerNode(
+        "container-rect",
+        {
+          inherit: "rect",
+          width: 66, // 默认宽度
+          height: 36, // 默认高度
+          attrs: {
+            body: {
+              strokeWidth: 1, //边框宽度
+              stroke: "#5F95FF", //边框颜色
+              // fill: "#EFF4FF", //填充颜色
+            },
+            text: {
+              fontSize: 12,
+              fill: "#262626",
+              refX: 10,
+              refY: -10,
+            },
+          },
+          zIndex: 1,
+          data: {
+            parent: true,
+          },
+        },
+        true
+      );
 
       //创建模板节点
       const r1 = graph.createNode({
@@ -380,10 +470,15 @@ export default {
         shape: "custom-circle",
         label: "b2",
       });
+      const r5 = graph.createNode({
+        shape: "container-rect",
+        label: "c1",
+      });
 
       //将模板节点添加到指定的群组中
       stencil.load([r1, r2], "group1");
       stencil.load([r3, r4], "group2");
+      stencil.load([r5], "group3");
 
       this.stencil = stencil;
     },
@@ -447,6 +542,21 @@ export default {
       //   });
       // });
 
+      //实时监听大小
+      graph.on("node:change:size", ({ node }) => {
+        // console.log(node);
+        this.getCurrentNodeData(node);
+        this.flag = false;
+      });
+
+      //实时监听位置
+      graph.on("node:change:position", ({ node }) => {
+        // console.log(node);
+        this.getCurrentNodeData(node);
+        this.flag = false;
+      });
+
+      //触发编辑
       graph.on("node:dblclick", ({ node }) => {
         console.log(node);
         this.getCurrentNodeData(node);
@@ -456,17 +566,43 @@ export default {
 
     //获取组件基本信息
     getCurrentNodeData(node) {
+      // console.log(node.store.data.parent);
+      let childToParentPosition;
+      let currentNode;
       this.selectedNode = node;
-      console.log(this.selectedNode);
-      let currentNode = {
-        currentLabel: node.label,
-        currentId: node.id,
-        currentPositionX: node.store.data.position.x,
-        currentPositionY: node.store.data.position.y,
-        currentSizeWidth: node.store.data.size.width,
-        currentSizeHeight: node.store.data.size.height,
-      };
-      console.log(currentNode);
+      // console.log(this.selectedNode);
+      if (node.store.data.parent) {
+        let relativePos = node.position({ relative: true });
+        console.log(relativePos);
+        // childToParentPosition = this.calculateParentPosition(node);
+        currentNode = {
+          currentLabel: node.label,
+          currentId: node.id,
+          currentPositionX: node.store.data.position.x,
+          currentPositionY: node.store.data.position.y,
+          currentSizeWidth: node.store.data.size.width,
+          currentSizeHeight: node.store.data.size.height,
+          currentIndex: node.store.data.zIndex,
+          currentParentId: node.store.data.parent,
+          currentParentX: relativePos.x,
+          currentParentY: relativePos.y,
+        };
+      } else {
+        currentNode = {
+          currentLabel: node.label,
+          currentId: node.id,
+          currentPositionX: node.store.data.position.x,
+          currentPositionY: node.store.data.position.y,
+          currentSizeWidth: node.store.data.size.width,
+          currentSizeHeight: node.store.data.size.height,
+          currentIndex: node.store.data.zIndex,
+          currentParentId: null,
+          currentParentX: null,
+          currentParentY: null,
+        };
+      }
+
+      // console.log(currentNode);
       this.currentNode = currentNode;
 
       this.componentName = currentNode.currentLabel;
@@ -475,6 +611,10 @@ export default {
       this.componentPositionY = currentNode.currentPositionY;
       this.componentWidth = currentNode.currentSizeWidth;
       this.componentHeight = currentNode.currentSizeHeight;
+      this.componentIndex = currentNode.currentIndex;
+      this.componentParentId = currentNode.currentParentId;
+      this.componentParentX = currentNode.currentParentX;
+      this.componentParentY = currentNode.currentParentY;
     },
 
     //更改组件信息
@@ -506,6 +646,27 @@ export default {
       this.selectedNode.resize(this.componentWidth, this.componentHeight);
     },
 
+    changeIndex(index) {
+      if (index === 0) {
+        this.selectedNode.toBack();
+      } else if (index === 1) {
+        this.selectedNode.toFront();
+      } else {
+        let componentIndex = this.componentIndex - 0;
+        this.selectedNode.setZIndex(componentIndex);
+      }
+    },
+
+    changeData() {
+      let graph = this.graph;
+      this.selectedNode = graph.getCellById(this.componentId);
+      this.selectedNode.setData({
+        childToParentX: this.componentParentX,
+        childToParentY: this.componentParentY,
+      });
+      console.log(this.selectedNode);
+    },
+
     changeCurrentNodeData() {
       if (this.componentName !== this.currentNode.currentLabel) {
         this.changeName(1);
@@ -525,8 +686,25 @@ export default {
       ) {
         this.changeSize();
       }
+      if (this.componentIndex !== this.currentNode.currentIndex) {
+        this.changeIndex();
+      }
     },
 
+    //计算子组件相对父组件位置
+    calculateParentPosition(node) {
+      let parentId = node.store.data.parent;
+      let graph = this.graph;
+      let parentPositionX = graph.getCellById(parentId).store.data.position.x;
+      let parentPositionY = graph.getCellById(parentId).store.data.position.y;
+      let childToParentX = node.store.data.position.x - parentPositionX;
+      let childToParentY = node.store.data.position.y - parentPositionY;
+      let childToParentPosition = {
+        X: childToParentX,
+        Y: childToParentY,
+      };
+      return childToParentPosition;
+    },
     //恢复组件信息
     recoverCurrentNodeData() {},
 
