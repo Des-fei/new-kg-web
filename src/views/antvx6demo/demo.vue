@@ -244,17 +244,17 @@ export default {
             maxWidth: 1920,
             minHeight: 1080,
           },
-          background: {
-            color: "grey",
-            position: {
-              x: 0,
-              y: 0,
-            },
-            size: {
-              width: 1980,
-              height: 1080,
-            },
-          },
+          // background: {
+          //   // color: "grey",
+          //   position: {
+          //     x: 0,
+          //     y: 0,
+          //   },
+          //   size: {
+          //     width: 1980,
+          //     height: 1080,
+          //   },
+          // },
         },
         //滚动画布
         // history: true, //撤消重做
@@ -551,6 +551,17 @@ export default {
 
       //实时监听位置
       graph.on("node:change:position", ({ node }) => {
+        let x = node.position().x;
+        let y = node.position().y;
+        let size = node.size().width;
+        //限制组件在画布的位置
+        if (x < 0) {
+          node.position(0, y);
+        } else if (x > 1920 - size) {
+          node.position(1920 - size, y);
+        } else if (y < 0) {
+          node.position(x, 0);
+        }
         // console.log(node);
         this.getCurrentNodeData(node);
         this.flag = false;
