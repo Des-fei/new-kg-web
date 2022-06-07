@@ -119,13 +119,15 @@
     <div class="bottom">
       <div id="save" class="save">
         <button @click="handlerSave()">保存布局</button>
+        <button @click="handlerClear()">清空画布</button>
+        <button @click="handlerEdit()">重新编辑</button>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import { Graph, Addon, ToolsView, NodeView } from "@antv/x6";
+import { Graph, Addon, ToolsView, NodeView, View } from "@antv/x6";
 import { Menu, Dropdown } from "antd";
 
 export default {
@@ -215,6 +217,7 @@ export default {
       componentParentY: null,
 
       childToParentPosition: null,
+      saveData: null,
     };
   },
   mounted() {
@@ -724,6 +727,24 @@ export default {
       let graph = this.graph;
       console.log(graph);
       console.log(graph.toJSON());
+      this.saveData = graph.toJSON();
+    },
+
+    //清空画布
+    handlerClear() {
+      let graph = this.graph;
+      console.log(graph.getNodes());
+      let data = graph.getNodes();
+      graph.removeCells(data);
+      // const view = View.getView("node1");
+      // console.log(view);
+      // view.empty();
+    },
+
+    //重新编辑
+    handlerEdit() {
+      let graph = this.graph;
+      graph.fromJSON(this.saveData);
     },
 
     //切换右栏
