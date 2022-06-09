@@ -10,11 +10,7 @@
         >{{ item }}</span
       >
     </div>
-    <el-dialog
-      title="编辑节点属性"
-      :visible.sync="editNodeVisible"
-      :before-close="nodeSpacing"
-    >
+    <el-dialog title="编辑节点属性" :visible.sync="editNodeVisible">
     </el-dialog>
   </div>
 </template>
@@ -586,6 +582,17 @@ export default {
           {
             source: "0",
             target: "1",
+            label: "a",
+          },
+          {
+            source: "1",
+            target: "0",
+            label: "b",
+          },
+          {
+            source: "1",
+            target: "0",
+            label: "c",
           },
           {
             source: "0",
@@ -1004,6 +1011,16 @@ export default {
         itemTypes: ["node", "edge"],
       });
 
+      //两个节点存在多条边
+      const multiEdgeType = "quadratic";
+      const singleEdgeType = "line";
+      G6.Util.processParallelEdges(
+        this.data.edges,
+        10,
+        multiEdgeType,
+        singleEdgeType
+      );
+
       const graph = new G6.Graph({
         container: "container",
         width: 1600,
@@ -1035,7 +1052,8 @@ export default {
           },
         },
         defaultEdge: {
-          size: 1,
+          type: "quadratic",
+          // size: 1,
           color: "#e2e2e2",
           style: {
             endArrow: {
@@ -1043,42 +1061,22 @@ export default {
               fill: "#e2e2e2",
             },
           },
+          labelCfg: {
+            autoRotate: true,
+          },
         },
         nodeStateStyles: {
-          activeByLegend: {
-            style: { lineWidth: 5, strokeOpacity: 0.5, stroke: "#fff" },
-            label: "null",
-            // labelCfg: {
-            //   style: {
-            //     text: null,
-            //   },
-            //   // style: {
-            //   //   stroke: "#fff",
-            //   //   lineWidth: 4,
-            //   // },
-            // },
+          highlight: {
+            opacity: 1,
           },
-          inactiveByLegend: {
-            opacity: 0.5,
+          dark: {
+            opacity: 0.2,
           },
-          // highlight: {
-          //   opacity: 1,
-          // },
-          // dark: {
-          //   opacity: 0.2,
-          // },
         },
         edgeStateStyles: {
-          activeByLegend: {
-            lineWidth: 10,
-            strokeOpacity: 0.5,
+          highlight: {
+            stroke: "#999",
           },
-          inactiveByLegend: {
-            opacity: 0.5,
-          },
-          // highlight: {
-          //   stroke: "#999",
-          // },
         },
         modes: {
           default: ["drag-canvas", "drag-node"],
@@ -1087,75 +1085,58 @@ export default {
         animate: true,
       });
 
-      // graph.data(this.chartData);
       graph.data(this.data);
       graph.render();
 
-      graph.on("node:mouseenter", (ev) => {
-        const node = ev.item;
-        const edges = node.getEdges();
-        edges.forEach((edge) => graph.setItemState(edge, "running", true));
+      function clearAllStats() {
+        graph.setAutoPaint(false);
+        graph.getNodes().forEach(function (node) {
+          graph.clearItemStates(node);
+        });
+        graph.getEdges().forEach(function (edge) {
+          graph.clearItemStates(edge);
+        });
+        graph.paint();
+        graph.setAutoPaint(true);
+      }
+
+      //鼠标进入节点，高亮相邻节点与边
+      graph.on("node:mouseenter", function (e) {
+        const item = e.item;
+        graph.setAutoPaint(false);
+        graph.getNodes().forEach(function (node) {
+          graph.clearItemStates(node);
+          graph.setItemState(node, "dark", true);
+        });
+        graph.setItemState(item, "dark", false);
+        graph.setItemState(item, "highlight", true);
+        graph.getEdges().forEach(function (edge) {
+          if (edge.getSource() === item) {
+            graph.setItemState(edge.getTarget(), "dark", false);
+            graph.setItemState(edge.getTarget(), "highlight", true);
+            graph.setItemState(edge, "highlight", true);
+            edge.toFront();
+          } else if (edge.getTarget() === item) {
+            graph.setItemState(edge.getSource(), "dark", false);
+            graph.setItemState(edge.getSource(), "highlight", true);
+            graph.setItemState(edge, "highlight", true);
+            edge.toFront();
+          } else {
+            graph.setItemState(edge, "highlight", false);
+          }
+        });
+        graph.paint();
+        graph.setAutoPaint(true);
       });
-      graph.on("node:mouseleave", (ev) => {
-        const node = ev.item;
-        const edges = node.getEdges();
-        edges.forEach((edge) => graph.setItemState(edge, "running", false));
+      graph.on("node:mouseleave", clearAllStats);
+      graph.on("canvas:click", clearAllStats);
+
+      graph.on("node:dblclick", (node) => {
+        console.log(node);
       });
 
       if (this.selectedWay == "muti") {
         graph.addBehaviors("click-select", "default");
-
-        // graph.on("node:mouseenter", (ev) => {
-        //   const node = ev.item;
-        //   graph.setItemState(node, "running", true);
-        // });
-
-        // graph.on("node:mouseleave", (ev) => {
-        //   const node = ev.item;
-        //   graph.setItemState(node, "running", false);
-        // });
-
-        // function clearAllStats() {
-        //   graph.setAutoPaint(false);
-        //   graph.getNodes().forEach(function (node) {
-        //     graph.clearItemStates(node);
-        //   });
-        //   graph.getEdges().forEach(function (edge) {
-        //     graph.clearItemStates(edge);
-        //   });
-        //   graph.paint();
-        //   graph.setAutoPaint(true);
-        // }
-
-        // graph.on("node:mouseenter", function (e) {
-        //   const item = e.item;
-        //   graph.setAutoPaint(false);
-        //   graph.getNodes().forEach(function (node) {
-        //     graph.clearItemStates(node);
-        //     graph.setItemState(node, "dark", true);
-        //   });
-        //   graph.setItemState(item, "dark", false);
-        //   graph.setItemState(item, "highlight", true);
-        //   graph.getEdges().forEach(function (edge) {
-        //     if (edge.getSource() === item) {
-        //       graph.setItemState(edge.getTarget(), "dark", false);
-        //       graph.setItemState(edge.getTarget(), "highlight", true);
-        //       graph.setItemState(edge, "highlight", true);
-        //       edge.toFront();
-        //     } else if (edge.getTarget() === item) {
-        //       graph.setItemState(edge.getSource(), "dark", false);
-        //       graph.setItemState(edge.getSource(), "highlight", true);
-        //       graph.setItemState(edge, "highlight", true);
-        //       edge.toFront();
-        //     } else {
-        //       graph.setItemState(edge, "highlight", false);
-        //     }
-        //   });
-        //   graph.paint();
-        //   graph.setAutoPaint(true);
-        // });
-        // graph.on("node:mouseleave", clearAllStats);
-        // graph.on("canvas:click", clearAllStats);
 
         // graph.on("node:dragstart", function (e) {
         //   graph.layout();

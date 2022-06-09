@@ -8,6 +8,7 @@
       <router-link to="/antvx6demo">AntvX6demo</router-link> |
       <router-link to="/echarts/chart1">Echarts-Chart1</router-link> |
       <router-link to="/antvg6">AntvG6</router-link> |
+      <router-link to="/antvg6demo">AntvG6demo</router-link> |
     </div>
     <router-view />
   </div>

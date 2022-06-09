@@ -3,7 +3,7 @@
     <!-- <div id="playlist">
       <button @click="getListHot">热门歌单分类</button>
     </div> -->
-    <div id="search">
+    <!-- <div id="search">
       <div id="box">
         <input
           @input="handlerInput"
@@ -14,16 +14,15 @@
         />
         <button @click="handlerKeywords">搜索</button>
       </div>
-
-      <!-- <button @click="handlerMultimatch" >多重搜索</button> -->
-    </div>
+      <button @click="handlerMultimatch" >多重搜索</button>
+    </div> -->
     <!-- <div id="showhotList">
       <HotList />
     </div> -->
     <div id="antvG6">
       <TestG6 />
     </div>
-    <div id="mountNode"></div>
+    <!-- <div id="mountNode"></div> -->
   </div>
 </template>
 

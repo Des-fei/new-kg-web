@@ -40,6 +40,11 @@ const routes = [
     name: "AntvX6demo",
     component: () => import("@/views/antvx6demo/demo.vue")
   },
+  {
+    path: "/antvg6demo",
+    name: "AntvG6demo",
+    component: () => import("@/views/antvg6demo/index.vue")
+  },
 ];
 
 const router = new VueRouter({
