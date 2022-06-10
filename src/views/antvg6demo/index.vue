@@ -1156,6 +1156,12 @@ export default {
             case "1": {
               node.icon.img =
                 "https://gw.alipayobjects.com/mdn/rms_f8c6a0/afts/img/A*Q_FQT6nwEC8AAAAAAAAAAABkARQnAQ";
+              break;
+            }
+            case "2": {
+              node.icon.img =
+                "https://gw.alipayobjects.com/zos/basement_prod/012bcf4f-423b-4922-8c24-32a89f8c41ce.svg";
+              break;
             }
           }
         }
