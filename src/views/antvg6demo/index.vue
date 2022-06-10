@@ -585,18 +585,29 @@ export default {
             label: "a",
           },
           {
-            source: "1",
-            target: "0",
+            source: "0",
+            target: "1",
             label: "b",
           },
           {
-            source: "1",
-            target: "0",
+            source: "0",
+            target: "1",
             label: "c",
           },
           {
             source: "0",
             target: "2",
+            label: "a",
+          },
+          {
+            source: "2",
+            target: "0",
+            label: "b",
+          },
+          {
+            source: "2",
+            target: "0",
+            label: "c",
           },
           {
             source: "0",
@@ -869,6 +880,8 @@ export default {
       editNodeVisible: false,
       nodeLabel: "",
       curNode: null,
+
+      a: "https://gw.alipayobjects.com/zos/basement_prod/012bcf4f-423b-4922-8c24-32a89f8c41ce.svg",
     };
   },
   mounted() {
@@ -881,7 +894,7 @@ export default {
       this.editNodeVisible = true;
       this.curNode = node; //更新当前节点对象
 
-      this.nodeLabel = this.curNode.getModel().label; //default
+      // this.nodeLabel = this.curNode.getModel().label; //default
 
       console.log("edit node handler");
     },
@@ -1021,11 +1034,48 @@ export default {
         singleEdgeType
       );
 
+      G6.registerNode("dom-node", {
+        draw: (cfg, group) => {
+          let stroke = cfg.style ? cfg.style.stroke || "#5B8FF9" : "#5B8FF9";
+          // let shape = group.addShape("image", {
+          //   attrs: {
+          //     width: cfg.size,
+          //     height: cfg.size,
+          //     labelCfg: {
+          //       position: "bottom",
+          //     },
+          //     img: "https://g.alicdn.com/cm-design/arms-trace/1.0.155/styles/armsTrace/images/TAIR.png",
+          //   },
+          //   // name: "image-shape",
+          // });
+
+          let shape = group.addShape("dom", {
+            attrs: {
+              width: cfg.size,
+              height: cfg.size,
+              html: `
+          <div id=${cfg.id} class='dom-node' style="
+          width: ${cfg.size - 5}px; height: ${cfg.size}px; ">
+            <div>
+              <img alt="" style="line-height: 100%; padding:2px;margin-top: 1px ;border: 2px solid ${stroke}; border-radius: 5px; "" src="https://gw.alipayobjects.com/mdn/rms_f8c6a0/afts/img/A*Q_FQT6nwEC8AAAAAAAAAAABkARQnAQ" width="20" height="20" />
+
+            </div>
+            <span style="color: #5B8FF9">${cfg.label}</span>
+          </div>
+            `,
+            },
+            draggable: true,
+          });
+          return shape;
+        },
+      });
+
       const graph = new G6.Graph({
         container: "container",
         width: 1600,
         height: 1000,
         fitView: true,
+        renderer: "svg",
         enabledStack: true,
         layout: {
           type: "radial",
@@ -1039,7 +1089,9 @@ export default {
           maxPreventOverlapIteration: 200, //防止重叠步骤的最大迭代次数
         },
         defaultNode: {
-          size: 20,
+          // type: "dom-node",
+          // size: [120, 40],
+          size: 30,
           style: {
             lineWidth: 2,
           },
@@ -1050,6 +1102,15 @@ export default {
             //   lineWidth: 4,
             // },
           },
+          //节点内置图标
+          icon: {
+            show: true,
+            /* icon's img address, string type */
+            img: this.a,
+            /* icon's size, 20 * 20 by default: */
+            //   width: 40,
+            //   height: 40
+          },
         },
         defaultEdge: {
           type: "quadratic",
@@ -1057,7 +1118,8 @@ export default {
           color: "#e2e2e2",
           style: {
             endArrow: {
-              path: "M 0,0 L 8,4 L 8,-4 Z",
+              path: "M -8,0 L -8,4 L 0,0 L -8,-4 Z",
+              // path: G6.Arrow.triangle(),
               fill: "#e2e2e2",
             },
           },
@@ -1083,6 +1145,20 @@ export default {
         },
         plugins: [Menu],
         animate: true,
+      });
+
+      //判断类型给节点赋予不同的icon
+      this.data.nodes.forEach(function (node) {
+        if (!node.icon) {
+          console.log("123");
+          node.icon = {};
+          switch (node.id) {
+            case "1": {
+              node.icon.img =
+                "https://gw.alipayobjects.com/mdn/rms_f8c6a0/afts/img/A*Q_FQT6nwEC8AAAAAAAAAAABkARQnAQ";
+            }
+          }
+        }
       });
 
       graph.data(this.data);
