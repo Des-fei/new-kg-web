@@ -1,7 +1,31 @@
 <template>
   <div class="antv-g6">
     <div id="container" class="container"></div>
-    <div class="box">
+    <div class="node-description" v-show="nodeDetail">
+      <div class="title">{{ curTitle }}</div>
+      <div class="description">{{ type }}</div>
+      <div class="detail">
+        <div
+          class="edge-title"
+          style="height: 50px; padding: 10px; line-height: 50px"
+        >
+          <span class="label">label</span>
+          <span class="source">source</span>
+          <span class="target">target</span>
+        </div>
+        <div
+          class="all-edges"
+          v-for="(item, index) in curEdges"
+          :key="index"
+          style="height: 30px; padding: 10px; line-height: 30px"
+        >
+          <span class="label">{{ item.label }}</span>
+          <span class="source">{{ item.source }}</span>
+          <span class="target">{{ item.target }}</span>
+        </div>
+      </div>
+    </div>
+    <!-- <div class="box">
       <span
         class="button"
         v-for="(item, i) in buttons"
@@ -9,7 +33,7 @@
         :key="i"
         >{{ item }}</span
       >
-    </div>
+    </div> -->
     <el-dialog title="编辑节点属性" :visible.sync="editNodeVisible">
     </el-dialog>
   </div>
@@ -881,6 +905,11 @@ export default {
       nodeLabel: "",
       curNode: null,
 
+      nodeDetail: false,
+      curTitle: null,
+      curEdges: [],
+      type: null,
+
       a: "https://gw.alipayobjects.com/zos/basement_prod/012bcf4f-423b-4922-8c24-32a89f8c41ce.svg",
     };
   },
@@ -1150,7 +1179,7 @@ export default {
       //判断类型给节点赋予不同的icon
       this.data.nodes.forEach(function (node) {
         if (!node.icon) {
-          console.log("123");
+          // console.log("123");
           node.icon = {};
           switch (node.id) {
             case "1": {
@@ -1170,6 +1199,7 @@ export default {
       graph.data(this.data);
       graph.render();
 
+      //清空所有状态
       function clearAllStats() {
         graph.setAutoPaint(false);
         graph.getNodes().forEach(function (node) {
@@ -1213,8 +1243,24 @@ export default {
       graph.on("node:mouseleave", clearAllStats);
       graph.on("canvas:click", clearAllStats);
 
+      //双击获取节点相关信息
       graph.on("node:dblclick", (node) => {
-        console.log(node);
+        this.curEdges = [];
+        let item = node.item;
+        this.type = item.getType();
+        let curModel = item.getModel();
+        let edges = item.getEdges();
+        edges.forEach((edge) => {
+          let curEdge = {
+            label: edge._cfg.model.label,
+            source: edge._cfg.model.source,
+            target: edge._cfg.model.target,
+          };
+          this.curEdges.push(curEdge);
+        });
+        console.log(this.curEdges);
+        this.nodeDetail = true;
+        this.curTitle = curModel.label;
       });
 
       if (this.selectedWay == "muti") {
@@ -1269,6 +1315,34 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.antv-g6 {
+  display: flex;
+  width: 1920px;
+  .node-description {
+    width: 200px;
+    background: #bcb9b9;
+    .title {
+      height: 40px;
+      line-height: 40px;
+      padding: 10px;
+      font-size: 18px;
+      // background: #8f8a8a;
+      display: flex;
+      border-bottom: 5px solid #e2e2e2;
+    }
+    .description {
+      height: 200px;
+      border-bottom: 5px solid #e2e2e2;
+    }
+    .detail {
+      span {
+        margin-right: 10px;
+        width: 50px;
+        display: inline-block;
+      }
+    }
+  }
+}
 .box {
   width: 300px;
   background-color: aquamarine;
