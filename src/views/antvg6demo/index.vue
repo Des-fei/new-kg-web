@@ -25,6 +25,11 @@
         </div>
       </div>
     </div>
+    <div class="graph-buttons">
+      <button @click="handlerSave()">保存画布</button>
+      <button @click="handlerClear()">清空画布</button>
+      <button @click="handlerEdit()">重新编辑</button>
+    </div>
     <!-- <div class="box">
       <span
         class="button"
@@ -910,6 +915,9 @@ export default {
       curEdges: [],
       type: null,
 
+      graph: null,
+      curData: null,
+
       a: "https://gw.alipayobjects.com/zos/basement_prod/012bcf4f-423b-4922-8c24-32a89f8c41ce.svg",
     };
   },
@@ -1054,13 +1062,13 @@ export default {
       });
 
       //两个节点存在多条边
-      const multiEdgeType = "quadratic";
-      const singleEdgeType = "line";
+      // const multiEdgeType = "quadratic";
+      // const singleEdgeType = "quadratic";
       G6.Util.processParallelEdges(
-        this.data.edges,
-        10,
-        multiEdgeType,
-        singleEdgeType
+        this.data.edges
+        // 10,
+        // multiEdgeType,
+        // singleEdgeType
       );
 
       G6.registerNode("dom-node", {
@@ -1104,15 +1112,17 @@ export default {
         width: 1600,
         height: 1000,
         fitView: true,
+        fitCenter: true,
+        linkCenter: true,
         renderer: "svg",
         enabledStack: true,
         layout: {
           type: "radial",
-          linkDistance: 100, //边长
+          linkDistance: 150, //边长
           maxIteration: 1000, // 停止迭代到最大迭代数
           strictRadial: true, // 当 preventOverlap 为 true，且 strictRadial 为 true  时，允许同环上重叠的节点不严格沿着该环布局，可以在该环的前后偏移以避免重叠。
-          nodeSpacing: 30, //同一环节点间的距离
-          unitRadius: 100, //每一圈距离上一圈的距离。默认填充整个画布，即根据图的大小决定
+          nodeSpacing: 50, //同一环节点间的距离
+          unitRadius: 150, //每一圈距离上一圈的距离。默认填充整个画布，即根据图的大小决定
           nodeSize: 70,
           preventOverlap: true, //是否防止重叠，必须配合下面属性 nodeSize，只有设置了与当前图节点大小相同的 nodeSize 值，才能够进行节点重叠的碰撞检测
           maxPreventOverlapIteration: 200, //防止重叠步骤的最大迭代次数
@@ -1148,6 +1158,7 @@ export default {
           style: {
             endArrow: {
               path: "M -8,0 L -8,4 L 0,0 L -8,-4 Z",
+              d: 15, // 偏移量
               // path: G6.Arrow.triangle(),
               fill: "#e2e2e2",
             },
@@ -1174,6 +1185,7 @@ export default {
         },
         plugins: [Menu],
         animate: true,
+        // groupByTypes: false,
       });
 
       //判断类型给节点赋予不同的icon
@@ -1198,6 +1210,7 @@ export default {
 
       graph.data(this.data);
       graph.render();
+      this.graph = graph;
 
       //清空所有状态
       function clearAllStats() {
@@ -1222,7 +1235,7 @@ export default {
         });
         graph.setItemState(item, "dark", false);
         graph.setItemState(item, "highlight", true);
-        graph.getEdges().forEach(function (edge) {
+        graph.getEdges().forEach((edge) => {
           if (edge.getSource() === item) {
             graph.setItemState(edge.getTarget(), "dark", false);
             graph.setItemState(edge.getTarget(), "highlight", true);
@@ -1235,6 +1248,7 @@ export default {
             edge.toFront();
           } else {
             graph.setItemState(edge, "highlight", false);
+            edge.toBack();
           }
         });
         graph.paint();
@@ -1242,6 +1256,11 @@ export default {
       });
       graph.on("node:mouseleave", clearAllStats);
       graph.on("canvas:click", clearAllStats);
+
+      //单击节点
+      graph.on("node:click", (node) => {
+        console.log(node);
+      });
 
       //双击获取节点相关信息
       graph.on("node:dblclick", (node) => {
@@ -1309,6 +1328,29 @@ export default {
           console.log(this.selectedWay);
           break;
       }
+    },
+
+    //保存画布
+    handlerSave() {
+      this.curData = {
+        nodes: this.graph.save().nodes,
+        edges: this.graph.save().edges,
+      };
+      console.log(this.curData.nodes[1].x);
+      console.log(this.graph.save());
+      console.log(this.graph.save().nodes[1].x);
+    },
+
+    //清空画布
+    handlerClear() {
+      this.graph.clear();
+    },
+
+    //渲染画布
+    handlerEdit() {
+      this.graph.clear();
+      this.graph.data(this.curData);
+      this.graph.render();
     },
   },
 };
