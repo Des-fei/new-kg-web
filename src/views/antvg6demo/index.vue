@@ -1332,13 +1332,15 @@ export default {
 
     //保存画布
     handlerSave() {
-      this.curData = {
-        nodes: this.graph.save().nodes,
-        edges: this.graph.save().edges,
-      };
-      console.log(this.curData.nodes[1].x);
-      console.log(this.graph.save());
-      console.log(this.graph.save().nodes[1].x);
+      let graph = this.graph;
+      let data = JSON.stringify(graph.save());
+      this.curData = JSON.parse(data);
+      console.log(this.curData);
+      // console.log(data);
+      // console.log(this.curData.nodes[1].x);
+      // console.log(graph.save().nodes[1].x);
+      // console.log(graph);
+      graph.refresh();
     },
 
     //清空画布
@@ -1348,9 +1350,8 @@ export default {
 
     //渲染画布
     handlerEdit() {
-      this.graph.clear();
-      this.graph.data(this.curData);
-      this.graph.render();
+      this.graph.changeData(this.curData);
+      this.graph.refresh();
     },
   },
 };
