@@ -39,7 +39,25 @@
         >{{ item }}</span
       >
     </div> -->
-    <el-dialog title="编辑节点属性" :visible.sync="editNodeVisible">
+    <el-dialog
+      width="600px"
+      height="400px"
+      top="0vh"
+      title="编辑节点属性"
+      :visible.sync="editNodeVisible"
+    >
+      <div class="node-options">
+        label:
+        <input type="text" />
+      </div>
+      <div class="node-options">
+        class:
+        <input type="text" />
+      </div>
+      <div class="node-buttons">
+        <button>取消</button>
+        <button>提交</button>
+      </div>
     </el-dialog>
   </div>
 </template>
@@ -925,17 +943,6 @@ export default {
     this.initG6();
   },
   methods: {
-    //节点属性编辑
-    handlerNodeEdit(node) {
-      console.log(node);
-      this.editNodeVisible = true;
-      this.curNode = node; //更新当前节点对象
-
-      // this.nodeLabel = this.curNode.getModel().label; //default
-
-      console.log("edit node handler");
-    },
-
     initG6() {
       const container = document.getElementById("container");
       // const width = container.scrollWidth;
@@ -1330,6 +1337,29 @@ export default {
       }
     },
 
+    //节点属性编辑
+    handlerNodeEdit(node) {
+      console.log(node);
+      this.editNodeVisible = true;
+      this.curNode = node; //更新当前节点对象
+
+      // this.nodeLabel = this.curNode.getModel().label; //default
+
+      console.log("edit node handler");
+    },
+
+    //删除节点
+    handlerNodeDelete(item) {
+      console.log(item);
+      this.graph.removeItem(item);
+    },
+
+    //删除关系
+    handlerEdgeEdit(item) {
+      console.log(item);
+      this.graph.removeItem(item);
+    },
+
     //保存画布
     handlerSave() {
       let graph = this.graph;
@@ -1382,6 +1412,42 @@ export default {
         margin-right: 10px;
         width: 50px;
         display: inline-block;
+      }
+    }
+  }
+  .el-dialog__wrapper {
+    display: block;
+    margin: 0 auto;
+    border: 1px solid rgb(59, 150, 234);
+    position: fixed;
+    background: #bfd1eb;
+    top: 400px;
+    left: 800px;
+    z-index: 1110;
+    ::v-deep.el-dialog__header {
+      height: 50px;
+      line-height: 50px;
+      background: #e2e2e2;
+    }
+    ::v-deep.el-dialog__body {
+      height: 200px;
+    }
+    .node-options {
+      margin-top: 10px;
+      height: 50px;
+      line-height: 50px;
+    }
+    .node-buttons {
+      margin-top: 10px;
+      height: 50px;
+      line-height: 50px;
+      display: flex;
+      width: 400px;
+      margin-left: 100px;
+      justify-content: space-between;
+      button {
+        width: 100px;
+        cursor: pointer;
       }
     }
   }
