@@ -48,15 +48,15 @@
     >
       <div class="node-options">
         label:
-        <input type="text" />
+        <input type="text" v-model="nodeLabel" />
       </div>
       <div class="node-options">
         class:
-        <input type="text" />
+        <input type="text" v-model="nodeClass" />
       </div>
       <div class="node-buttons">
-        <button>取消</button>
-        <button>提交</button>
+        <button @click="recoverCurrentNodeData()">取消</button>
+        <button @click="changeCurrentNodeData()">提交</button>
       </div>
     </el-dialog>
   </div>
@@ -491,14 +491,17 @@ export default {
           {
             id: "0",
             label: "0",
+            class: "a",
           },
           {
             id: "1",
             label: "1",
+            class: "a",
           },
           {
             id: "2",
             label: "2",
+            class: "a",
           },
           {
             id: "3",
@@ -507,122 +510,152 @@ export default {
           {
             id: "4",
             label: "4",
+            class: "a",
           },
           {
             id: "5",
             label: "5",
+            class: "a",
           },
           {
             id: "6",
             label: "6",
+            class: "a",
           },
           {
             id: "7",
             label: "7",
+            class: "a",
           },
           {
             id: "8",
             label: "8",
+            class: "a",
           },
           {
             id: "9",
             label: "9",
+            class: "a",
           },
           {
             id: "10",
             label: "10",
+            class: "a",
           },
           {
             id: "11",
             label: "11",
+            class: "a",
           },
           {
             id: "12",
             label: "12",
+            class: "a",
           },
           {
             id: "13",
             label: "13",
+            class: "a",
           },
           {
             id: "14",
             label: "14",
+            class: "a",
           },
           {
             id: "15",
             label: "15",
+            class: "a",
           },
           {
             id: "16",
             label: "16",
+            class: "a",
           },
           {
             id: "17",
             label: "17",
+            class: "a",
           },
           {
             id: "18",
             label: "18",
+            class: "a",
           },
           {
             id: "19",
             label: "19",
+            class: "a",
           },
           {
             id: "20",
             label: "20",
+            class: "a",
           },
           {
             id: "21",
             label: "21",
+            class: "a",
           },
           {
             id: "22",
             label: "22",
+            class: "a",
           },
           {
             id: "23",
             label: "23",
+            class: "a",
           },
           {
             id: "24",
             label: "24",
+            class: "a",
           },
           {
             id: "25",
             label: "25",
+            class: "a",
           },
           {
             id: "26",
             label: "26",
+            class: "a",
           },
           {
             id: "27",
             label: "27",
+            class: "a",
           },
           {
             id: "28",
             label: "28",
+            class: "a",
           },
           {
             id: "29",
             label: "29",
+            class: "a",
           },
           {
             id: "30",
             label: "30",
+            class: "a",
           },
           {
             id: "31",
             label: "31",
+            class: "a",
           },
           {
             id: "32",
             label: "32",
+            class: "a",
           },
           {
             id: "33",
             label: "33",
+            class: "a",
           },
         ],
         edges: [
@@ -925,8 +958,9 @@ export default {
 
       //对话框：编辑节点属性
       editNodeVisible: false,
-      nodeLabel: "",
       curNode: null,
+      nodeLabel: null,
+      nodeClass: null,
 
       nodeDetail: false,
       curTitle: null,
@@ -1343,9 +1377,30 @@ export default {
       this.editNodeVisible = true;
       this.curNode = node; //更新当前节点对象
 
-      // this.nodeLabel = this.curNode.getModel().label; //default
+      this.nodeLabel = this.curNode.getModel().label; //default
+      this.nodeClass = this.curNode.getModel().class;
 
       console.log("edit node handler");
+    },
+    //提交修改
+    changeCurrentNodeData() {
+      this.graph.updateItem(this.curNode, {
+        label: this.nodeLabel,
+        class: this.nodeClass,
+      });
+      // console.log(this.curNode);
+      // console.log(this.curNode.getModel().class);
+      this.editNodeVisible = false;
+    },
+    //取消修改
+    recoverCurrentNodeData() {
+      this.graph.updateItem(this.curNode, {
+        label: this.curNode.getModel().label,
+        class: this.curNode.getModel().class,
+      });
+      console.log(this.curNode);
+      console.log(this.curNode.getModel().class);
+      this.editNodeVisible = false;
     },
 
     //删除节点
