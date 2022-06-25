@@ -28,7 +28,7 @@
     <div class="graph-buttons">
       <button @click="handlerSave()">保存画布</button>
       <button @click="handlerClear()">清空画布</button>
-      <button @click="handlerEdit()">重新编辑123</button>
+      <button @click="handlerGraphEdit()">重新编辑</button>
     </div>
     <!-- <div class="box">
       <span
@@ -46,17 +46,41 @@
       title="编辑节点属性"
       :visible.sync="editNodeVisible"
     >
-      <div class="node-options">
+      <div class="info-options">
         label:
         <input type="text" v-model="nodeLabel" />
       </div>
-      <div class="node-options">
+      <div class="info-options">
         class:
         <input type="text" v-model="nodeClass" />
       </div>
-      <div class="node-buttons">
-        <button @click="recoverCurrentNodeData()">取消</button>
-        <button @click="changeCurrentNodeData()">提交</button>
+      <div class="info-buttons">
+        <button @click="recoverCurrentData()">取消</button>
+        <button @click="changeCurrentData()">提交</button>
+      </div>
+    </el-dialog>
+    <el-dialog
+      width="600px"
+      height="600px"
+      top="0vh"
+      title="编辑关系属性"
+      :visible.sync="editEdgeVisible"
+    >
+      <div class="info-options">
+        source:
+        <input type="text" v-model="edgeSource" />
+      </div>
+      <div class="info-options">
+        type:
+        <input type="text" v-model="edgeType" />
+      </div>
+      <div class="info-options">
+        target:
+        <input type="text" v-model="edgeTarget" />
+      </div>
+      <div class="info-buttons">
+        <button @click="recoverCurrentData()">取消</button>
+        <button @click="changeCurrentData()">提交</button>
       </div>
     </el-dialog>
   </div>
@@ -663,263 +687,327 @@ export default {
             source: "0",
             target: "1",
             label: "a",
+            class: "a",
           },
           {
             source: "0",
             target: "1",
             label: "b",
+            class: "a",
           },
           {
             source: "0",
             target: "1",
             label: "c",
+            class: "a",
           },
           {
             source: "0",
             target: "2",
             label: "a",
+            class: "a",
           },
           {
             source: "2",
             target: "0",
             label: "b",
+            class: "a",
           },
           {
             source: "2",
             target: "0",
             label: "c",
+            class: "a",
           },
           {
             source: "0",
             target: "3",
+            class: "a",
           },
           {
             source: "0",
             target: "4",
+            class: "a",
           },
           {
             source: "0",
             target: "5",
+            class: "a",
           },
           {
             source: "0",
             target: "7",
+            class: "a",
           },
           {
             source: "0",
             target: "8",
+            class: "a",
           },
           {
             source: "0",
             target: "9",
+            class: "a",
           },
           {
             source: "0",
             target: "10",
+            class: "a",
           },
           {
             source: "0",
             target: "11",
+            class: "a",
           },
           {
             source: "0",
             target: "13",
+            class: "a",
           },
           {
             source: "0",
             target: "14",
+            class: "a",
           },
           {
             source: "0",
             target: "15",
+            class: "a",
           },
           {
             source: "0",
             target: "16",
+            class: "a",
           },
           {
             source: "2",
             target: "3",
+            class: "a",
           },
           {
             source: "4",
             target: "5",
+            class: "a",
           },
           {
             source: "4",
             target: "6",
+            class: "a",
           },
           {
             source: "5",
             target: "6",
+            class: "a",
           },
           {
             source: "7",
             target: "13",
+            class: "a",
           },
           {
             source: "8",
             target: "14",
+            class: "a",
           },
           {
             source: "9",
             target: "10",
+            class: "a",
           },
           {
             source: "10",
             target: "22",
+            class: "a",
           },
           {
             source: "10",
             target: "14",
+            class: "a",
           },
           {
             source: "10",
             target: "12",
+            class: "a",
           },
           {
             source: "10",
             target: "24",
+            class: "a",
           },
           {
             source: "10",
             target: "21",
+            class: "a",
           },
           {
             source: "10",
             target: "20",
+            class: "a",
           },
           {
             source: "11",
             target: "24",
+            class: "a",
           },
           {
             source: "11",
             target: "22",
+            class: "a",
           },
           {
             source: "11",
             target: "14",
+            class: "a",
           },
           {
             source: "12",
             target: "13",
+            class: "a",
           },
           {
             source: "16",
             target: "17",
+            class: "a",
           },
           {
             source: "16",
             target: "18",
+            class: "a",
           },
           {
             source: "16",
             target: "21",
+            class: "a",
           },
           {
             source: "16",
             target: "22",
+            class: "a",
           },
           {
             source: "17",
             target: "18",
+            class: "a",
           },
           {
             source: "17",
             target: "20",
+            class: "a",
           },
           {
             source: "18",
             target: "19",
+            class: "a",
           },
           {
             source: "19",
             target: "20",
+            class: "a",
           },
           {
             source: "19",
             target: "33",
+            class: "a",
           },
           {
             source: "19",
             target: "22",
+            class: "a",
           },
           {
             source: "19",
             target: "23",
+            class: "a",
           },
           {
             source: "20",
             target: "21",
+            class: "a",
           },
           {
             source: "21",
             target: "22",
+            class: "a",
           },
           {
             source: "22",
             target: "24",
+            class: "a",
           },
           {
             source: "22",
             target: "25",
+            class: "a",
           },
           {
             source: "22",
             target: "26",
+            class: "a",
           },
           {
             source: "22",
             target: "23",
+            class: "a",
           },
           {
             source: "22",
             target: "28",
+            class: "a",
           },
           {
             source: "22",
             target: "30",
+            class: "a",
           },
           {
             source: "22",
             target: "31",
+            class: "a",
           },
           {
             source: "22",
             target: "32",
+            class: "a",
           },
           {
             source: "22",
             target: "33",
+            class: "a",
           },
           {
             source: "23",
             target: "28",
+            class: "a",
           },
           {
             source: "23",
             target: "27",
+            class: "a",
           },
           {
             source: "23",
             target: "29",
+            class: "a",
           },
           {
             source: "23",
             target: "30",
+            class: "a",
           },
           {
             source: "23",
             target: "31",
+            class: "a",
           },
           {
             source: "23",
             target: "33",
+            class: "a",
           },
           {
             source: "32",
             target: "33",
+            class: "a",
           },
         ],
       },
@@ -958,9 +1046,15 @@ export default {
 
       //对话框：编辑节点属性
       editNodeVisible: false,
-      curNode: null,
+      editEdgeVisible:false,
+      curItem:null,
+      // curNode: null,
+      // curEdge:null,
       nodeLabel: null,
       nodeClass: null,
+      edgeSource: null,
+      edgeType: null,
+      edgeTarget:null,
 
       nodeDetail: false,
       curTitle: null,
@@ -1067,7 +1161,8 @@ export default {
               break;
 
             case "编辑节点":
-              that.handlerNodeEdit(item);
+              that.handlerEdit(item)
+              // that.handlerNodeEdit(item);
               console.log("编辑节点");
               break;
 
@@ -1077,17 +1172,20 @@ export default {
               break;
 
             case "删除节点":
-              that.handlerNodeDelete(item);
+              that.handlerDelete(item);
+              // that.handlerNodeDelete(item);
               console.log("删除节点");
               break;
 
             case "编辑关系":
-              that.handlerEdgeEdit(item);
+              that.handlerEdit(item)
+              // that.handlerEdgeEdit(item);
               console.log("编辑关系");
               break;
 
             case "删除关系":
-              that.handlerEdgeEdit(item);
+              that.handlerDelete(item);
+              // that.handlerEdgeDelete(item);
               console.log("删除关系");
               break;
           }
@@ -1371,48 +1469,97 @@ export default {
       }
     },
 
-    //节点属性编辑
-    handlerNodeEdit(node) {
-      console.log(node);
-      this.editNodeVisible = true;
-      this.curNode = node; //更新当前节点对象
+    //编辑节点，编辑关系
+    handlerEdit(item){
+      console.log(item);
+      console.log(item.getType());
+      let type = item.getType();
+       if (type === "node"){
+        this.editNodeVisible = true;
+      this.curItem = item; //更新当前节点对象
 
-      this.nodeLabel = this.curNode.getModel().label; //default
-      this.nodeClass = this.curNode.getModel().class;
+      this.nodeLabel = this.curItem.getModel().label; //default
+      this.nodeClass = this.curItem.getModel().class;
 
       console.log("edit node handler");
+        
+       }else{
+        this.editEdgeVisible = true;
+      this.curItem = item; //更新当前节点对象
+      console.log(this.curItem.getModel());
+
+      this.edgeSource = this.curItem.getModel().source; //default
+      this.edgeType = this.curItem.getModel().class;
+      this.edgeTarget = this.curItem.getModel().target;
+      console.log("edit edge handler");
+
+       }
     },
+
+    // //节点属性编辑
+    // handlerNodeEdit(node) {
+    //   console.log(node);
+    //   this.editNodeVisible = true;
+    //   this.curNode = node; //更新当前节点对象
+
+    //   this.nodeLabel = this.curNode.getModel().label; //default
+    //   this.nodeClass = this.curNode.getModel().class;
+
+    //   console.log("edit node handler");
+    // },
     //提交修改
-    changeCurrentNodeData() {
-      this.graph.updateItem(this.curNode, {
+    changeCurrentData() {
+      console.log(this.curItem.getType());
+      let type = this.curItem.getType();
+      if(type === "node"){
+      this.graph.updateItem(this.curItem, {
         label: this.nodeLabel,
         class: this.nodeClass,
       });
-      // console.log(this.curNode);
-      // console.log(this.curNode.getModel().class);
-      this.editNodeVisible = false;
+      // console.log(this.curItem);
+      // console.log(this.curItem.getModel().class);
+      this.editNodeVisible = false;}else{
+        this.graph.updateItem(this.curItem, {
+        source: this.edgeSource,
+        class: this.edgeType,
+        target:this.edgeTarget
+      });
+        this.editEdgeVisible = false;
+      }
     },
     //取消修改
-    recoverCurrentNodeData() {
-      this.graph.updateItem(this.curNode, {
-        label: this.curNode.getModel().label,
-        class: this.curNode.getModel().class,
+    recoverCurrentData() {
+       console.log(this.curItem.getType());
+      let type = this.curItem.getType();
+      if(type === "node"){
+      this.graph.updateItem(this.curItem, {
+        label: this.curItem.getModel().label,
+        class: this.curItem.getModel().class,
       });
-      console.log(this.curNode);
-      console.log(this.curNode.getModel().class);
-      this.editNodeVisible = false;
+      // console.log(this.curItem);
+      // console.log(this.curItem.getModel().class);
+      this.editNodeVisible = false;}else{
+        this.graph.updateItem(this.curItem, {
+        source: this.curItem.getModel().source,
+        class: this.curItem.getModel().class,
+         target: this.curItem.getModel().target,
+      });
+        this.editEdgeVisible = false;
+      }
     },
 
-    //删除节点
-    handlerNodeDelete(item) {
-      console.log(item);
-      this.graph.removeItem(item);
-    },
-
-    //删除关系
-    handlerEdgeEdit(item) {
-      console.log(item);
-      this.graph.removeItem(item);
+    //删除节点，删除关系
+    handlerDelete(item){
+      //  console.log(item);
+      //  console.log(item.getType());
+       let type = item.getType();
+       if (type === "node"){     
+        this.graph.removeItem(item)
+        console.log("节点已删除");
+       }else{
+        this.graph.removeItem(item)
+        console.log("关系已删除");
+       }
     },
 
     //保存画布
@@ -1434,7 +1581,7 @@ export default {
     },
 
     //渲染画布
-    handlerEdit() {
+    handlerGraphEdit() {
       this.graph.changeData(this.curData);
       this.graph.refresh();
     },
@@ -1485,14 +1632,14 @@ export default {
       background: #e2e2e2;
     }
     ::v-deep.el-dialog__body {
-      height: 200px;
+      height: auto;
     }
-    .node-options {
+    .info-options {
       margin-top: 10px;
       height: 50px;
       line-height: 50px;
     }
-    .node-buttons {
+    .info-buttons {
       margin-top: 10px;
       height: 50px;
       line-height: 50px;
