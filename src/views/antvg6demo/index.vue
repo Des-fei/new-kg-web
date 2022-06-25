@@ -28,7 +28,7 @@
     <div class="graph-buttons">
       <button @click="handlerSave()">保存画布</button>
       <button @click="handlerClear()">清空画布</button>
-      <button @click="handlerEdit()">重新编辑</button>
+      <button @click="handlerEdit()">重新编辑123</button>
     </div>
     <!-- <div class="box">
       <span
