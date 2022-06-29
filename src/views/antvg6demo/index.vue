@@ -83,6 +83,30 @@
         <button @click="changeCurrentData()">提交</button>
       </div>
     </el-dialog>
+    <el-dialog
+      width="600px"
+      height="600px"
+      top="0vh"
+      title="添加关系"
+      :visible.sync="addEdgeVisible"
+    >
+      <div class="info-options">
+        source:
+        <input type="text" v-model="edgeSource" />
+      </div>
+      <div class="info-options">
+        type:
+        <input type="text" v-model="edgeType" />
+      </div>
+      <div class="info-options">
+        target:
+        <input type="text" v-model="edgeTarget" />
+      </div>
+      <div class="info-buttons">
+        <button @click="recoverCurrentData()">取消</button>
+        <button @click="changeCurrentData()">提交</button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -1046,15 +1070,17 @@ export default {
 
       //对话框：编辑节点属性
       editNodeVisible: false,
-      editEdgeVisible:false,
-      curItem:null,
+      editEdgeVisible: false,
+      addEdgeVisible: false,
+      curItem: null,
       // curNode: null,
       // curEdge:null,
       nodeLabel: null,
       nodeClass: null,
       edgeSource: null,
       edgeType: null,
-      edgeTarget:null,
+      edgeTarget: null,
+      addedCount: 0,
 
       nodeDetail: false,
       curTitle: null,
@@ -1161,7 +1187,7 @@ export default {
               break;
 
             case "编辑节点":
-              that.handlerEdit(item)
+              that.handlerEdit(item);
               // that.handlerNodeEdit(item);
               console.log("编辑节点");
               break;
@@ -1178,7 +1204,7 @@ export default {
               break;
 
             case "编辑关系":
-              that.handlerEdit(item)
+              that.handlerEdit(item);
               // that.handlerEdgeEdit(item);
               console.log("编辑关系");
               break;
@@ -1243,6 +1269,95 @@ export default {
             draggable: true,
           });
           return shape;
+        },
+      });
+
+      // Register a custom behavior: add a node when user click the blank part of canvas
+      G6.registerBehavior("click-add-node", {
+        // Set the events and the corresponding responsing function for this behavior
+        getEvents() {
+          // The event is canvas:click, the responsing function is onClick
+          return {
+            "canvas:click": "onClick",
+          };
+        },
+        // Click event
+        onClick(ev) {
+          const self = this;
+          const graph = self.graph;
+          // Add a new node
+          graph.addItem("node", {
+            x: ev.canvasX,
+            y: ev.canvasY,
+            id: `node-${this.addedCount}`, // Generate the unique id
+          });
+          this.addedCount++;
+        },
+      });
+
+      // Register a custom behavior: click two end nodes to add an edge
+      G6.registerBehavior("click-add-edge", {
+        // Set the events and the corresponding responsing function for this behavior
+        getEvents() {
+          return {
+            "node:click": "onClick", // The event is canvas:click, the responsing function is onClick
+            mousemove: "onMousemove", // The event is mousemove, the responsing function is onMousemove
+            "edge:click": "onEdgeClick", // The event is edge:click, the responsing function is onEdgeClick
+          };
+        },
+        // The responsing function for node:click defined in getEvents
+        onClick(ev) {
+          const self = this;
+          const node = ev.item;
+          const graph = self.graph;
+          // The position where the mouse clicks
+          const point = { x: ev.x, y: ev.y };
+          const model = node.getModel();
+          console.log(self.addingEdge);
+          console.log(self.edge);
+          if (self.addingEdge && self.edge) {
+            graph.updateItem(self.edge, {
+              target: model.id,
+            });
+
+            self.addEdgeVisible = true;
+
+            self.edge = null;
+            self.addingEdge = false;
+          } else {
+            // Add anew edge, the end node is the current node user clicks
+            self.edge = graph.addItem("edge", {
+              source: model.id,
+              target: model.id,
+            });
+            self.addingEdge = true;
+          }
+        },
+        // The responsing function for mousemove defined in getEvents
+        onMousemove(ev) {
+          const self = this;
+          // The current position the mouse clicks
+          const point = { x: ev.x, y: ev.y };
+          console.log(self.addingEdge);
+          console.log(self.edge);
+          if (self.addingEdge && self.edge) {
+            // Update the end node to the current node the mouse clicks
+            self.graph.updateItem(self.edge, {
+              target: point,
+            });
+          }
+        },
+        // The responsing function for edge:click defined in getEvents
+        onEdgeClick(ev) {
+          const self = this;
+          const currentEdge = ev.item;
+          console.log(self.addingEdge);
+          console.log(self.edge);
+          if (self.addingEdge && self.edge === currentEdge) {
+            self.graph.removeItem(self.edge);
+            self.edge = null;
+            self.addingEdge = false;
+          }
         },
       });
 
@@ -1321,6 +1436,10 @@ export default {
         },
         modes: {
           default: ["drag-canvas", "drag-node"],
+          // Adding node mode
+          addNode: ["click-add-node", "click-select"],
+          // Adding edge mode
+          addEdge: ["click-add-edge", "click-select"],
         },
         plugins: [Menu],
         animate: true,
@@ -1470,30 +1589,28 @@ export default {
     },
 
     //编辑节点，编辑关系
-    handlerEdit(item){
+    handlerEdit(item) {
       console.log(item);
       console.log(item.getType());
       let type = item.getType();
-       if (type === "node"){
+      if (type === "node") {
         this.editNodeVisible = true;
-      this.curItem = item; //更新当前节点对象
+        this.curItem = item; //更新当前节点对象
 
-      this.nodeLabel = this.curItem.getModel().label; //default
-      this.nodeClass = this.curItem.getModel().class;
+        this.nodeLabel = this.curItem.getModel().label; //default
+        this.nodeClass = this.curItem.getModel().class;
 
-      console.log("edit node handler");
-        
-       }else{
+        console.log("edit node handler");
+      } else {
         this.editEdgeVisible = true;
-      this.curItem = item; //更新当前节点对象
-      console.log(this.curItem.getModel());
+        this.curItem = item; //更新当前节点对象
+        console.log(this.curItem.getModel());
 
-      this.edgeSource = this.curItem.getModel().source; //default
-      this.edgeType = this.curItem.getModel().class;
-      this.edgeTarget = this.curItem.getModel().target;
-      console.log("edit edge handler");
-
-       }
+        this.edgeSource = this.curItem.getModel().source; //default
+        this.edgeType = this.curItem.getModel().class;
+        this.edgeTarget = this.curItem.getModel().target;
+        console.log("edit edge handler");
+      }
     },
 
     // //节点属性编辑
@@ -1511,55 +1628,63 @@ export default {
     changeCurrentData() {
       console.log(this.curItem.getType());
       let type = this.curItem.getType();
-      if(type === "node"){
-      this.graph.updateItem(this.curItem, {
-        label: this.nodeLabel,
-        class: this.nodeClass,
-      });
-      // console.log(this.curItem);
-      // console.log(this.curItem.getModel().class);
-      this.editNodeVisible = false;}else{
+      if (type === "node") {
         this.graph.updateItem(this.curItem, {
-        source: this.edgeSource,
-        class: this.edgeType,
-        target:this.edgeTarget
-      });
+          label: this.nodeLabel,
+          class: this.nodeClass,
+        });
+        // console.log(this.curItem);
+        // console.log(this.curItem.getModel().class);
+        this.editNodeVisible = false;
+      } else {
+        this.graph.updateItem(this.curItem, {
+          source: this.edgeSource,
+          class: this.edgeType,
+          target: this.edgeTarget,
+        });
         this.editEdgeVisible = false;
       }
     },
     //取消修改
     recoverCurrentData() {
-       console.log(this.curItem.getType());
+      console.log(this.curItem.getType());
       let type = this.curItem.getType();
-      if(type === "node"){
-      this.graph.updateItem(this.curItem, {
-        label: this.curItem.getModel().label,
-        class: this.curItem.getModel().class,
-      });
-      // console.log(this.curItem);
-      // console.log(this.curItem.getModel().class);
-      this.editNodeVisible = false;}else{
+      if (type === "node") {
         this.graph.updateItem(this.curItem, {
-        source: this.curItem.getModel().source,
-        class: this.curItem.getModel().class,
-         target: this.curItem.getModel().target,
-      });
+          label: this.curItem.getModel().label,
+          class: this.curItem.getModel().class,
+        });
+        // console.log(this.curItem);
+        // console.log(this.curItem.getModel().class);
+        this.editNodeVisible = false;
+      } else {
+        this.graph.updateItem(this.curItem, {
+          source: this.curItem.getModel().source,
+          class: this.curItem.getModel().class,
+          target: this.curItem.getModel().target,
+        });
         this.editEdgeVisible = false;
       }
     },
 
     //删除节点，删除关系
-    handlerDelete(item){
+    handlerDelete(item) {
       //  console.log(item);
       //  console.log(item.getType());
-       let type = item.getType();
-       if (type === "node"){     
-        this.graph.removeItem(item)
+      let type = item.getType();
+      if (type === "node") {
+        this.graph.removeItem(item);
         console.log("节点已删除");
-       }else{
-        this.graph.removeItem(item)
+      } else {
+        this.graph.removeItem(item);
         console.log("关系已删除");
-       }
+      }
+    },
+
+    //添加关系
+    handlerNodeExtendLink() {
+      this.graph.setMode("addEdge");
+      console.log(this.graph.getCurrentMode());
     },
 
     //保存画布
