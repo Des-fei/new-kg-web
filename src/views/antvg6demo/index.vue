@@ -5,10 +5,7 @@
       <div class="title">{{ curTitle }}</div>
       <div class="description">{{ type }}</div>
       <div class="detail">
-        <div
-          class="edge-title"
-          style="height: 50px; padding: 10px; line-height: 50px"
-        >
+        <div class="edge-title" style="height: 50px; line-height: 50px">
           <span class="label">label</span>
           <span class="source">source</span>
           <span class="target">target</span>
@@ -17,7 +14,7 @@
           class="all-edges"
           v-for="(item, index) in curEdges"
           :key="index"
-          style="height: 30px; padding: 10px; line-height: 30px"
+          style="height: 30px; line-height: 30px"
         >
           <span class="label">{{ item.label }}</span>
           <span class="source">{{ item.source }}</span>
@@ -45,6 +42,26 @@
       top="0vh"
       title="编辑节点属性"
       :visible.sync="editNodeVisible"
+    >
+      <div class="info-options">
+        label:
+        <input type="text" v-model="nodeLabel" />
+      </div>
+      <div class="info-options">
+        class:
+        <input type="text" v-model="nodeClass" />
+      </div>
+      <div class="info-buttons">
+        <button @click="recoverCurrentData()">取消</button>
+        <button @click="changeCurrentData()">提交</button>
+      </div>
+    </el-dialog>
+    <el-dialog
+      width="600px"
+      height="400px"
+      top="0vh"
+      title="添加节点"
+      :visible.sync="addNodeVisible"
     >
       <div class="info-options">
         label:
@@ -1035,6 +1052,34 @@ export default {
           },
         ],
       },
+      newData: {
+        nodes: [
+          {
+            id: "100",
+            label: "100",
+            class: "a",
+          },
+          {
+            id: "101",
+            label: "101",
+            class: "a",
+          },
+        ],
+        edges: [
+          {
+            source: "22",
+            target: "100",
+            label: "a",
+            class: "a",
+          },
+          {
+            source: "22",
+            target: "101",
+            label: "a",
+            class: "a",
+          },
+        ],
+      },
       types: [
         {
           color: "#BDD2FD",
@@ -1070,6 +1115,7 @@ export default {
 
       //对话框：编辑节点属性
       editNodeVisible: false,
+      addNodeVisible: false,
       editEdgeVisible: false,
       addEdgeVisible: false,
       curItem: null,
@@ -1125,50 +1171,62 @@ export default {
 
       const Menu = new G6.Menu({
         getContent(evt) {
-          // console.log(evt);
-          const item = evt.item;
-          if (item.getType() === "node") {
+          if (evt.target && evt.target.isCanvas && evt.target.isCanvas()) {
             const contextMenuContainer = document.createElement("div");
             contextMenuContainer.id = "contextMenu";
             contextMenuContainer.style.width = "80px";
 
-            //扩展节点
-            const nodeExtension = document.createElement("li");
-            nodeExtension.innerHTML = "扩展节点";
-            contextMenuContainer.appendChild(nodeExtension);
-
-            //编辑节点
-            const nodeEdit = document.createElement("li");
-            nodeEdit.innerHTML = "编辑节点";
-            contextMenuContainer.appendChild(nodeEdit);
-
-            //添加关系
-            const nodeExtendLink = document.createElement("li");
-            nodeExtendLink.innerHTML = "添加关系";
-            contextMenuContainer.appendChild(nodeExtendLink);
-
-            //删除节点
-            const nodeDelete = document.createElement("li");
-            nodeDelete.innerHTML = "删除节点";
-            contextMenuContainer.appendChild(nodeDelete);
+            //添加节点
+            const nodeAdd = document.createElement("li");
+            nodeAdd.innerHTML = "添加节点";
+            contextMenuContainer.appendChild(nodeAdd);
 
             return contextMenuContainer;
-          } else if (item.getType() === "edge") {
-            const contextMenuContainer = document.createElement("div");
-            contextMenuContainer.id = "contextMenu";
-            contextMenuContainer.style.width = "80px";
+          } else if (evt.item) {
+            let item = evt.item;
+            if (item.getType() === "node") {
+              const contextMenuContainer = document.createElement("div");
+              contextMenuContainer.id = "contextMenu";
+              contextMenuContainer.style.width = "80px";
 
-            //编辑关系
-            const edgeEdit = document.createElement("li");
-            edgeEdit.innerHTML = "编辑关系";
-            contextMenuContainer.appendChild(edgeEdit);
+              //扩展节点
+              const nodeExtension = document.createElement("li");
+              nodeExtension.innerHTML = "扩展节点";
+              contextMenuContainer.appendChild(nodeExtension);
 
-            //删除关系
-            const edgeDelete = document.createElement("li");
-            edgeDelete.innerHTML = "删除关系";
-            contextMenuContainer.appendChild(edgeDelete);
+              //编辑节点
+              const nodeEdit = document.createElement("li");
+              nodeEdit.innerHTML = "编辑节点";
+              contextMenuContainer.appendChild(nodeEdit);
 
-            return contextMenuContainer;
+              //添加关系
+              const nodeExtendLink = document.createElement("li");
+              nodeExtendLink.innerHTML = "添加关系";
+              contextMenuContainer.appendChild(nodeExtendLink);
+
+              //删除节点
+              const nodeDelete = document.createElement("li");
+              nodeDelete.innerHTML = "删除节点";
+              contextMenuContainer.appendChild(nodeDelete);
+
+              return contextMenuContainer;
+            } else if (item.getType() === "edge") {
+              const contextMenuContainer = document.createElement("div");
+              contextMenuContainer.id = "contextMenu";
+              contextMenuContainer.style.width = "80px";
+
+              //编辑关系
+              const edgeEdit = document.createElement("li");
+              edgeEdit.innerHTML = "编辑关系";
+              contextMenuContainer.appendChild(edgeEdit);
+
+              //删除关系
+              const edgeDelete = document.createElement("li");
+              edgeDelete.innerHTML = "删除关系";
+              contextMenuContainer.appendChild(edgeDelete);
+
+              return contextMenuContainer;
+            }
           }
         },
         handleMenuClick: (target, item) => {
@@ -1214,6 +1272,12 @@ export default {
               // that.handlerEdgeDelete(item);
               console.log("删除关系");
               break;
+
+            case "添加节点":
+              that.handlerNodeAdd(item);
+              // that.handlerEdgeDelete(item);
+              console.log("添加节点");
+              break;
           }
         },
         // offsetX and offsetY include the padding of the parent container
@@ -1223,7 +1287,7 @@ export default {
         offsetY: 0,
         // the types of items that allow the menu show up
         // 在哪些类型的元素上响应
-        itemTypes: ["node", "edge"],
+        itemTypes: ["node", "edge", "canvas"],
       });
 
       //两个节点存在多条边
@@ -1272,32 +1336,41 @@ export default {
         },
       });
 
-      // Register a custom behavior: add a node when user click the blank part of canvas
+      //自定义增加节点behavior
       G6.registerBehavior("click-add-node", {
-        // Set the events and the corresponding responsing function for this behavior
         getEvents() {
-          // The event is canvas:click, the responsing function is onClick
           return {
             "canvas:click": "onClick",
           };
         },
         // Click event
         onClick(ev) {
+          console.log(ev);
           const self = this;
           const graph = self.graph;
           // Add a new node
           graph.addItem("node", {
-            x: ev.canvasX,
-            y: ev.canvasY,
-            id: `node-${this.addedCount}`, // Generate the unique id
+            x: ev.x,
+            y: ev.y,
+            id: `node-${that.addedCount}`, // Generate the unique id
           });
-          this.addedCount++;
+          that.addNodeVisible = true;
+          that.curItem = graph.findById(`node-${that.addedCount}`);
+          if (that.nodeLabel) {
+            that.nodeLabel = null;
+          }
+          if (that.nodeClass) {
+            that.nodeClass = null;
+          }
+          graph.setMode("default");
+          // console.log(graph.findById(`node-${that.addedCount}`));
+          that.addedCount++;
+          // console.log(that.addedCount);
         },
       });
 
-      // Register a custom behavior: click two end nodes to add an edge
+      //自定义增加边behavior
       G6.registerBehavior("click-add-edge", {
-        // Set the events and the corresponding responsing function for this behavior
         getEvents() {
           return {
             "node:click": "onClick", // The event is canvas:click, the responsing function is onClick
@@ -1307,20 +1380,25 @@ export default {
         },
         // The responsing function for node:click defined in getEvents
         onClick(ev) {
-          const self = this;
-          const node = ev.item;
-          const graph = self.graph;
+          let self = this;
+          let node = ev.item;
+          let graph = self.graph;
           // The position where the mouse clicks
-          const point = { x: ev.x, y: ev.y };
-          const model = node.getModel();
-          console.log(self.addingEdge);
-          console.log(self.edge);
+          let point = { x: ev.x, y: ev.y };
+          let model = node.getModel();
           if (self.addingEdge && self.edge) {
             graph.updateItem(self.edge, {
               target: model.id,
             });
 
-            self.addEdgeVisible = true;
+            that.addEdgeVisible = true;
+            that.curItem = self.edge;
+            that.edgeSource = that.curItem.getModel().source;
+            that.edgeTarget = that.curItem.getModel().target;
+            if (that.edgeType) {
+              that.edgeType = null;
+            }
+            graph.setMode("default");
 
             self.edge = null;
             self.addingEdge = false;
@@ -1330,16 +1408,17 @@ export default {
               source: model.id,
               target: model.id,
             });
+            console.log(self.addingEdge);
+            console.log(self.edge);
             self.addingEdge = true;
           }
         },
         // The responsing function for mousemove defined in getEvents
         onMousemove(ev) {
-          const self = this;
+          let self = this;
+          let node = ev.item;
           // The current position the mouse clicks
-          const point = { x: ev.x, y: ev.y };
-          console.log(self.addingEdge);
-          console.log(self.edge);
+          let point = { x: ev.x, y: ev.y };
           if (self.addingEdge && self.edge) {
             // Update the end node to the current node the mouse clicks
             self.graph.updateItem(self.edge, {
@@ -1349,14 +1428,13 @@ export default {
         },
         // The responsing function for edge:click defined in getEvents
         onEdgeClick(ev) {
-          const self = this;
-          const currentEdge = ev.item;
-          console.log(self.addingEdge);
-          console.log(self.edge);
+          let self = this;
+          let currentEdge = ev.item;
           if (self.addingEdge && self.edge === currentEdge) {
             self.graph.removeItem(self.edge);
             self.edge = null;
             self.addingEdge = false;
+            graph.setMode("default");
           }
         },
       });
@@ -1613,17 +1691,6 @@ export default {
       }
     },
 
-    // //节点属性编辑
-    // handlerNodeEdit(node) {
-    //   console.log(node);
-    //   this.editNodeVisible = true;
-    //   this.curNode = node; //更新当前节点对象
-
-    //   this.nodeLabel = this.curNode.getModel().label; //default
-    //   this.nodeClass = this.curNode.getModel().class;
-
-    //   console.log("edit node handler");
-    // },
     //提交修改
     changeCurrentData() {
       console.log(this.curItem.getType());
@@ -1636,6 +1703,8 @@ export default {
         // console.log(this.curItem);
         // console.log(this.curItem.getModel().class);
         this.editNodeVisible = false;
+        this.addNodeVisible = false;
+        console.log(this.curItem.getModel().class);
       } else {
         this.graph.updateItem(this.curItem, {
           source: this.edgeSource,
@@ -1643,6 +1712,8 @@ export default {
           target: this.edgeTarget,
         });
         this.editEdgeVisible = false;
+        this.addEdgeVisible = false;
+        console.log(this.curItem.getModel().class);
       }
     },
     //取消修改
@@ -1654,16 +1725,26 @@ export default {
           label: this.curItem.getModel().label,
           class: this.curItem.getModel().class,
         });
+        if (this.editNodeVisible) {
+          this.editNodeVisible = false;
+        } else {
+          this.addNodeVisible = false;
+          this.graph.removeItem(this.curItem);
+        }
         // console.log(this.curItem);
         // console.log(this.curItem.getModel().class);
-        this.editNodeVisible = false;
       } else {
         this.graph.updateItem(this.curItem, {
           source: this.curItem.getModel().source,
           class: this.curItem.getModel().class,
           target: this.curItem.getModel().target,
         });
-        this.editEdgeVisible = false;
+        if (this.editEdgeVisible) {
+          this.editEdgeVisible = false;
+        } else {
+          this.addEdgeVisible = false;
+          this.graph.removeItem(this.curItem);
+        }
       }
     },
 
@@ -1685,6 +1766,27 @@ export default {
     handlerNodeExtendLink() {
       this.graph.setMode("addEdge");
       console.log(this.graph.getCurrentMode());
+    },
+
+    //添加节点
+    handlerNodeAdd() {
+      this.graph.setMode("addNode");
+      console.log(this.graph.getCurrentMode());
+    },
+
+    //拓展节点
+    handlerNodeExtension(item) {
+      let type = item.getType();
+      if (type === "node") {
+        let temp = JSON.stringify(this.data);
+        let data = JSON.parse(temp);
+        data.nodes.push(...this.newData.nodes);
+        data.edges.push(...this.newData.edges);
+        this.graph.changeData(data);
+        this.graph.refresh();
+        console.log(data);
+        console.log(this.data);
+      }
     },
 
     //保存画布
@@ -1719,7 +1821,7 @@ export default {
   display: flex;
   width: 1920px;
   .node-description {
-    width: 200px;
+    width: 300px;
     background: #bcb9b9;
     .title {
       height: 40px;
@@ -1780,7 +1882,7 @@ export default {
   }
 }
 .box {
-  width: 300px;
+  width: 200px;
   background-color: aquamarine;
   margin: auto;
   .button {
